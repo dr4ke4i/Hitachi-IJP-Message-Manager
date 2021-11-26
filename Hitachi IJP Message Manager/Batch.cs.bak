@@ -1,0 +1,311 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Hitachi_IJP_Message_Manager
+{
+    class CBatch
+    {
+        #region Private Data
+
+        private int startcounter;
+        private int lastknowncounter;
+
+        private int brokenbags;
+        private int maintbagstotal;
+        private int volumebags;
+
+        private int startmaintcounter;
+
+        #endregion
+
+        #region Public Data
+
+        // todo: read settings from file
+        public List<int> PossibleVolume = new List<int> { 1600, 3200, 4800, 6400 };
+
+        #endregion
+
+        #region Properties
+
+        /// <summary> Readonly property. Use StartNewBatch(<i>int count</i>) to set new value </summary>
+        public int StartCounter { get => startcounter; }
+        public int EndCounter {
+            get
+            {
+                if (startmaintcounter != -1) lasterror = Error.Maintenance_mode_is_on;
+                return GetEndCounter();
+            }
+        }
+
+        /// <summary> User manipulated failed bags counter. Checks are applied. </summary>
+        public int BrokenBags {
+            get
+            {
+                return brokenbags; 
+            }
+            set
+            {
+                if (CheckValidity(-1,-1,value))
+                {
+                    brokenbags = value;
+                    lasterror = Error.OK;
+                }
+                else
+                {
+                    lasterror = Error.Counter_value_did_not_pass_validity_check;
+                }
+            }
+        }
+
+        /// <summary> Readonly property. Use StartMaintenance(<i>int count</i>), EndMaintenance(<i>int count</i>) to calculate value </summary>
+        public int MaintBags { get; private set; }
+
+        /// <summary> User manipulated batch bags counter. Checks are applied. </summary>
+        public int Volume {
+            get
+            {
+                return volumebags;
+            }
+            set
+            {
+                if (CheckValidity(-1,-1,-1,-1,value))
+                {
+                    volumebags = value;
+                    lasterror = Error.OK;
+                }
+                else
+                {
+                    lasterror = Error.Illegal_counter_value;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Checks if the Batch is done
+        /// </summary>
+        public bool IsFinished
+        {
+            get
+            {
+                bool result = false;
+                if (lastknowncounter == GetEndCounter())
+                {
+                    result = true;
+                    lasterror = Error.OK;
+                }
+                else if (lastknowncounter > GetEndCounter())
+                {
+                    result = true;
+                    lasterror = Error.End_Batch_counter_overthrow;
+                }
+                else
+                    result = false;
+                return result;
+            }
+        }
+
+        /// <summary>
+        /// Checks if the Batch finish was (greatly) underwatched
+        /// </summary>
+        public bool IsFinishedOverthrow
+        {
+            get
+            {
+                if (lastknowncounter > GetEndCounter())
+                {
+                    lasterror = Error.End_Batch_counter_overthrow;
+                    return true;
+                }
+                else
+                    return false;
+            }
+        }
+
+        #endregion
+
+        #region Public Methods
+
+        public void StartNewBatch(int _startcounter)
+        {
+            startcounter = _startcounter;
+            lastknowncounter = _startcounter;
+            startmaintcounter = -1;
+            volumebags = ClosestPossibleVolume(volumebags);
+            brokenbags = 0;
+            maintbagstotal = 0;
+        }
+
+        public bool StartMaintenance(int _startmaintcounter)
+        {
+            bool result = true;
+            if (_startmaintcounter >= startcounter)
+            {
+                if (startmaintcounter == -1)
+                {
+                    startmaintcounter = _startmaintcounter;
+                    result = true;
+                }
+                else
+                {
+                    lasterror = Error.Maintenance_mode_is_on;
+                }
+                result = false;
+            }
+            else
+            {
+                lasterror = Error.Illegal_counter_value;
+                result = false;
+            }
+            // todo: update lastknowncounter;
+            return result;
+        }
+        
+        public bool EndMaintenance(int _endmaintcounter)
+        {
+            bool result = true;
+            if (startmaintcounter != -1)
+            {
+                if (_endmaintcounter >= startmaintcounter)
+                {
+                    maintbagstotal += _endmaintcounter - startmaintcounter;
+                    startmaintcounter = -1;
+                    result = true;
+                }
+                else
+                {
+                    lasterror = Error.Illegal_counter_value;
+                    result = false;
+                }
+            }
+            else
+            {
+                lasterror = Error.Maintenance_mode_is_off;
+                result = false;
+            }
+            // todo: update lastknowncounter;
+            return result;
+        }
+
+        /// <summary> Initialize important fields to continue work </summary>
+        public void Init(int _startcounter, int _lastknowncounter = -1, int _volumebags = 1600, int _brokenbags = 0,
+            int _maintbags = 0)
+        {
+            startcounter = (_startcounter >= 0 ? _startcounter : 0 );
+            if (_lastknowncounter >= 0)
+                lastknowncounter = _lastknowncounter > startcounter ? _lastknowncounter : startcounter;
+            else
+                lastknowncounter = 0;
+            startmaintcounter = -1;
+            volumebags = _volumebags > 0 ? _volumebags : PossibleVolume[0];
+            brokenbags = _brokenbags >= 0 ? _brokenbags : 0;
+            maintbagstotal = _maintbags >= 0 ? _maintbags : 0;
+        }
+
+        public bool CheckIfFinished(int counter)
+        {
+            bool result = false;
+            if (counter <= 0)
+            {
+                lasterror = Error.Illegal_counter_value;
+                result = false;
+            }
+            else if (counter < startcounter)
+            {
+                lasterror = Error.Counter_value_did_not_pass_validity_check;
+                result = false;
+            }
+            else
+            {
+                lastknowncounter = counter;
+                result = IsFinished;
+            }
+            return result;
+        }
+
+        #endregion
+
+        #region Private Methods
+
+        private int ClosestPossibleVolume(int _volume)
+        {
+            if (_volume != 0)
+            {
+                int v_min = PossibleVolume[0];
+                foreach (int possible in PossibleVolume)
+                {
+                    if (v_min > Math.Abs(_volume - possible)) v_min = possible;
+                }
+            }
+            return PossibleVolume[0];
+        }
+
+        private int GetEndCounter()
+        {
+            return startcounter + brokenbags + maintbagstotal + volumebags;
+        }
+
+        private bool CheckValidity(int _startcounter = -1, int _lastknowncounter = -1, int _brokenbags = -1,
+            int _maintbags = -1, int _volume = -1)
+        {
+            int sc = (_startcounter < 0 ? startcounter : _startcounter);
+            int lc = (_lastknowncounter <= 0 ? lastknowncounter : _lastknowncounter);
+            int bb = (_brokenbags < 0 ? brokenbags : _brokenbags);
+            int mb = (_maintbags < 0 ? maintbagstotal : _maintbags);
+            int vb = (_volume <= 0 ? volumebags : _volume);
+            int expected_end = sc + bb + mb + vb;
+
+            if (sc < 0 || lc < sc || lc < 0 || bb < 0 || mb < 0 || vb <= 0) return false;
+            if (lc > expected_end) return false;           
+
+            return true;
+        }
+
+        #endregion
+
+        #region Constructor
+
+        public CBatch()
+        {
+
+        }
+
+        #endregion
+
+        #region Errors
+
+        private Error lasterror
+        {
+            get
+            {
+                return lasterror;
+            }
+            set
+            {
+                lasterror = value;
+                if (value == Error.OK)
+                    bError = false;
+                else
+                    bError = true;
+            }
+        }
+
+        public enum Error
+        {
+            OK = 0,
+            Maintenance_mode_is_on,
+            Maintenance_mode_is_off,
+            Counter_value_did_not_pass_validity_check,
+            Illegal_counter_value,
+            End_Batch_counter_overthrow
+        }
+
+        public bool bError { get; private set; }
+        public Error GetLastError { get { return lasterror; } }
+
+        #endregion
+
+    }
+}
