@@ -112,6 +112,7 @@ namespace Hitachi_IJP_Message_Manager
             this.lblProgramHoldOn = new System.Windows.Forms.Label();
             this.label18 = new System.Windows.Forms.Label();
             this.btn_cmboxNewBatchVolumeConfirm = new System.Windows.Forms.Button();
+            this.btn_cmboxDeleteBatchVolumeItem = new System.Windows.Forms.Button();
             this.cmstrip_lbLog.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -484,7 +485,7 @@ namespace Hitachi_IJP_Message_Manager
             // tboxPrinterPCString
             // 
             this.tboxPrinterPCString.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.tboxPrinterPCString.Location = new System.Drawing.Point(12, 486);
+            this.tboxPrinterPCString.Location = new System.Drawing.Point(12, 461);
             this.tboxPrinterPCString.Name = "tboxPrinterPCString";
             this.tboxPrinterPCString.ReadOnly = true;
             this.tboxPrinterPCString.Size = new System.Drawing.Size(486, 30);
@@ -495,7 +496,7 @@ namespace Hitachi_IJP_Message_Manager
             this.lboxLog.ContextMenuStrip = this.cmstrip_lbLog;
             this.lboxLog.FormattingEnabled = true;
             this.lboxLog.ItemHeight = 16;
-            this.lboxLog.Location = new System.Drawing.Point(12, 566);
+            this.lboxLog.Location = new System.Drawing.Point(12, 540);
             this.lboxLog.Name = "lboxLog";
             this.lboxLog.ScrollAlwaysVisible = true;
             this.lboxLog.Size = new System.Drawing.Size(841, 148);
@@ -526,7 +527,7 @@ namespace Hitachi_IJP_Message_Manager
             // 
             // tboxTimerTickPeriod
             // 
-            this.tboxTimerTickPeriod.Location = new System.Drawing.Point(1049, 640);
+            this.tboxTimerTickPeriod.Location = new System.Drawing.Point(1049, 618);
             this.tboxTimerTickPeriod.Name = "tboxTimerTickPeriod";
             this.tboxTimerTickPeriod.Size = new System.Drawing.Size(100, 22);
             this.tboxTimerTickPeriod.TabIndex = 15;
@@ -537,7 +538,7 @@ namespace Hitachi_IJP_Message_Manager
             // label11
             // 
             this.label11.AutoSize = true;
-            this.label11.Location = new System.Drawing.Point(886, 643);
+            this.label11.Location = new System.Drawing.Point(886, 621);
             this.label11.Name = "label11";
             this.label11.Size = new System.Drawing.Size(121, 17);
             this.label11.TabIndex = 16;
@@ -584,7 +585,7 @@ namespace Hitachi_IJP_Message_Manager
             // btnStartMaintenance
             // 
             this.btnStartMaintenance.AutoSize = true;
-            this.btnStartMaintenance.Location = new System.Drawing.Point(892, 477);
+            this.btnStartMaintenance.Location = new System.Drawing.Point(892, 455);
             this.btnStartMaintenance.Name = "btnStartMaintenance";
             this.btnStartMaintenance.Size = new System.Drawing.Size(262, 27);
             this.btnStartMaintenance.TabIndex = 17;
@@ -613,7 +614,7 @@ namespace Hitachi_IJP_Message_Manager
             // btnReWriteStringToPrinter
             // 
             this.btnReWriteStringToPrinter.AutoSize = true;
-            this.btnReWriteStringToPrinter.Location = new System.Drawing.Point(12, 522);
+            this.btnReWriteStringToPrinter.Location = new System.Drawing.Point(12, 497);
             this.btnReWriteStringToPrinter.Name = "btnReWriteStringToPrinter";
             this.btnReWriteStringToPrinter.Size = new System.Drawing.Size(486, 27);
             this.btnReWriteStringToPrinter.TabIndex = 19;
@@ -624,7 +625,7 @@ namespace Hitachi_IJP_Message_Manager
             // label20
             // 
             this.label20.AutoSize = true;
-            this.label20.Location = new System.Drawing.Point(886, 669);
+            this.label20.Location = new System.Drawing.Point(886, 647);
             this.label20.Name = "label20";
             this.label20.Size = new System.Drawing.Size(46, 17);
             this.label20.TabIndex = 20;
@@ -632,7 +633,7 @@ namespace Hitachi_IJP_Message_Manager
             // 
             // lblPrinterACKs
             // 
-            this.lblPrinterACKs.Location = new System.Drawing.Point(941, 669);
+            this.lblPrinterACKs.Location = new System.Drawing.Point(941, 647);
             this.lblPrinterACKs.Name = "lblPrinterACKs";
             this.lblPrinterACKs.Size = new System.Drawing.Size(70, 20);
             this.lblPrinterACKs.TabIndex = 21;
@@ -642,7 +643,7 @@ namespace Hitachi_IJP_Message_Manager
             // label21
             // 
             this.label21.AutoSize = true;
-            this.label21.Location = new System.Drawing.Point(1017, 669);
+            this.label21.Location = new System.Drawing.Point(1017, 647);
             this.label21.Name = "label21";
             this.label21.Size = new System.Drawing.Size(56, 17);
             this.label21.TabIndex = 20;
@@ -650,7 +651,7 @@ namespace Hitachi_IJP_Message_Manager
             // 
             // lblPrinterNACKs
             // 
-            this.lblPrinterNACKs.Location = new System.Drawing.Point(1079, 669);
+            this.lblPrinterNACKs.Location = new System.Drawing.Point(1079, 647);
             this.lblPrinterNACKs.Name = "lblPrinterNACKs";
             this.lblPrinterNACKs.Size = new System.Drawing.Size(76, 17);
             this.lblPrinterNACKs.TabIndex = 21;
@@ -660,7 +661,7 @@ namespace Hitachi_IJP_Message_Manager
             // label22
             // 
             this.label22.AutoSize = true;
-            this.label22.Location = new System.Drawing.Point(12, 466);
+            this.label22.Location = new System.Drawing.Point(12, 441);
             this.label22.Name = "label22";
             this.label22.Size = new System.Drawing.Size(188, 17);
             this.label22.TabIndex = 22;
@@ -668,7 +669,7 @@ namespace Hitachi_IJP_Message_Manager
             // 
             // lblPCStringLastUpdateTime
             // 
-            this.lblPCStringLastUpdateTime.Location = new System.Drawing.Point(317, 466);
+            this.lblPCStringLastUpdateTime.Location = new System.Drawing.Point(317, 441);
             this.lblPCStringLastUpdateTime.Name = "lblPCStringLastUpdateTime";
             this.lblPCStringLastUpdateTime.Size = new System.Drawing.Size(181, 17);
             this.lblPCStringLastUpdateTime.TabIndex = 23;
@@ -707,7 +708,7 @@ namespace Hitachi_IJP_Message_Manager
             // btnStorePrintingMessageIntoMemory
             // 
             this.btnStorePrintingMessageIntoMemory.AutoSize = true;
-            this.btnStorePrintingMessageIntoMemory.Location = new System.Drawing.Point(892, 515);
+            this.btnStorePrintingMessageIntoMemory.Location = new System.Drawing.Point(892, 493);
             this.btnStorePrintingMessageIntoMemory.Name = "btnStorePrintingMessageIntoMemory";
             this.btnStorePrintingMessageIntoMemory.Size = new System.Drawing.Size(262, 44);
             this.btnStorePrintingMessageIntoMemory.TabIndex = 17;
@@ -718,7 +719,7 @@ namespace Hitachi_IJP_Message_Manager
             // btnSetRemoteOperationStart
             // 
             this.btnSetRemoteOperationStart.AutoSize = true;
-            this.btnSetRemoteOperationStart.Location = new System.Drawing.Point(892, 370);
+            this.btnSetRemoteOperationStart.Location = new System.Drawing.Point(892, 348);
             this.btnSetRemoteOperationStart.Name = "btnSetRemoteOperationStart";
             this.btnSetRemoteOperationStart.Size = new System.Drawing.Size(262, 44);
             this.btnSetRemoteOperationStart.TabIndex = 24;
@@ -729,7 +730,7 @@ namespace Hitachi_IJP_Message_Manager
             // btnSetRemoteOperationStop
             // 
             this.btnSetRemoteOperationStop.AutoSize = true;
-            this.btnSetRemoteOperationStop.Location = new System.Drawing.Point(892, 420);
+            this.btnSetRemoteOperationStop.Location = new System.Drawing.Point(892, 398);
             this.btnSetRemoteOperationStop.Name = "btnSetRemoteOperationStop";
             this.btnSetRemoteOperationStop.Size = new System.Drawing.Size(262, 44);
             this.btnSetRemoteOperationStop.TabIndex = 24;
@@ -741,7 +742,7 @@ namespace Hitachi_IJP_Message_Manager
             // 
             this.btnExpandWindowForm.AutoSize = true;
             this.btnExpandWindowForm.Font = new System.Drawing.Font("Microsoft Sans Serif", 13.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.btnExpandWindowForm.Location = new System.Drawing.Point(778, 486);
+            this.btnExpandWindowForm.Location = new System.Drawing.Point(778, 461);
             this.btnExpandWindowForm.Name = "btnExpandWindowForm";
             this.btnExpandWindowForm.Size = new System.Drawing.Size(75, 39);
             this.btnExpandWindowForm.TabIndex = 25;
@@ -752,7 +753,7 @@ namespace Hitachi_IJP_Message_Manager
             // label23
             // 
             this.label23.AutoSize = true;
-            this.label23.Location = new System.Drawing.Point(886, 697);
+            this.label23.Location = new System.Drawing.Point(886, 675);
             this.label23.Name = "label23";
             this.label23.Size = new System.Drawing.Size(97, 17);
             this.label23.TabIndex = 26;
@@ -761,7 +762,7 @@ namespace Hitachi_IJP_Message_Manager
             // label24
             // 
             this.label24.AutoSize = true;
-            this.label24.Location = new System.Drawing.Point(1127, 697);
+            this.label24.Location = new System.Drawing.Point(1127, 675);
             this.label24.Name = "label24";
             this.label24.Size = new System.Drawing.Size(24, 17);
             this.label24.TabIndex = 27;
@@ -769,7 +770,7 @@ namespace Hitachi_IJP_Message_Manager
             // 
             // lblLastCycleMillis
             // 
-            this.lblLastCycleMillis.Location = new System.Drawing.Point(989, 697);
+            this.lblLastCycleMillis.Location = new System.Drawing.Point(989, 675);
             this.lblLastCycleMillis.Name = "lblLastCycleMillis";
             this.lblLastCycleMillis.Size = new System.Drawing.Size(132, 17);
             this.lblLastCycleMillis.TabIndex = 28;
@@ -796,7 +797,7 @@ namespace Hitachi_IJP_Message_Manager
             // 
             // btnStopCalendarTimeResume
             // 
-            this.btnStopCalendarTimeResume.Location = new System.Drawing.Point(892, 571);
+            this.btnStopCalendarTimeResume.Location = new System.Drawing.Point(892, 549);
             this.btnStopCalendarTimeResume.Name = "btnStopCalendarTimeResume";
             this.btnStopCalendarTimeResume.Size = new System.Drawing.Size(262, 27);
             this.btnStopCalendarTimeResume.TabIndex = 31;
@@ -806,7 +807,7 @@ namespace Hitachi_IJP_Message_Manager
             // 
             // lblPrinterRemoteOperation
             // 
-            this.lblPrinterRemoteOperation.Location = new System.Drawing.Point(859, 350);
+            this.lblPrinterRemoteOperation.Location = new System.Drawing.Point(859, 328);
             this.lblPrinterRemoteOperation.Name = "lblPrinterRemoteOperation";
             this.lblPrinterRemoteOperation.Size = new System.Drawing.Size(295, 17);
             this.lblPrinterRemoteOperation.TabIndex = 32;
@@ -816,7 +817,7 @@ namespace Hitachi_IJP_Message_Manager
             // label25
             // 
             this.label25.AutoSize = true;
-            this.label25.Location = new System.Drawing.Point(886, 333);
+            this.label25.Location = new System.Drawing.Point(886, 311);
             this.label25.Name = "label25";
             this.label25.Size = new System.Drawing.Size(182, 17);
             this.label25.TabIndex = 18;
@@ -828,15 +829,15 @@ namespace Hitachi_IJP_Message_Manager
             this.lblPrinterHoldOnActive.ForeColor = System.Drawing.Color.Red;
             this.lblPrinterHoldOnActive.Location = new System.Drawing.Point(180, 1);
             this.lblPrinterHoldOnActive.Name = "lblPrinterHoldOnActive";
-            this.lblPrinterHoldOnActive.Size = new System.Drawing.Size(291, 51);
+            this.lblPrinterHoldOnActive.Size = new System.Drawing.Size(296, 51);
             this.lblPrinterHoldOnActive.TabIndex = 33;
-            this.lblPrinterHoldOnActive.Text = "<- Начните новую партию и/или устраните\r\nвозможные ошибки готовости принтера.\r\nПр" +
+            this.lblPrinterHoldOnActive.Text = "<- Устраните возможные ошибки готовости\r\nпринтера и/или начните новую партию.\r\nПр" +
     "интер сам партию не переведёт.";
             // 
             // label16
             // 
             this.label16.AutoSize = true;
-            this.label16.Location = new System.Drawing.Point(889, 601);
+            this.label16.Location = new System.Drawing.Point(889, 579);
             this.label16.Name = "label16";
             this.label16.Size = new System.Drawing.Size(84, 17);
             this.label16.TabIndex = 18;
@@ -844,7 +845,7 @@ namespace Hitachi_IJP_Message_Manager
             // 
             // lblPrinterStatusClockStopped
             // 
-            this.lblPrinterStatusClockStopped.Location = new System.Drawing.Point(979, 601);
+            this.lblPrinterStatusClockStopped.Location = new System.Drawing.Point(979, 579);
             this.lblPrinterStatusClockStopped.Name = "lblPrinterStatusClockStopped";
             this.lblPrinterStatusClockStopped.Size = new System.Drawing.Size(175, 17);
             this.lblPrinterStatusClockStopped.TabIndex = 32;
@@ -874,18 +875,29 @@ namespace Hitachi_IJP_Message_Manager
             this.btn_cmboxNewBatchVolumeConfirm.AutoSize = true;
             this.btn_cmboxNewBatchVolumeConfirm.Location = new System.Drawing.Point(307, 143);
             this.btn_cmboxNewBatchVolumeConfirm.Name = "btn_cmboxNewBatchVolumeConfirm";
-            this.btn_cmboxNewBatchVolumeConfirm.Size = new System.Drawing.Size(38, 27);
+            this.btn_cmboxNewBatchVolumeConfirm.Size = new System.Drawing.Size(82, 27);
             this.btn_cmboxNewBatchVolumeConfirm.TabIndex = 7;
-            this.btn_cmboxNewBatchVolumeConfirm.Text = "OK";
+            this.btn_cmboxNewBatchVolumeConfirm.Text = "Добавить";
             this.btn_cmboxNewBatchVolumeConfirm.UseVisualStyleBackColor = true;
             this.btn_cmboxNewBatchVolumeConfirm.Visible = false;
             this.btn_cmboxNewBatchVolumeConfirm.Click += new System.EventHandler(this.btn_cmboxNewBatchVolumeConfirm_Click);
             // 
+            // btn_cmboxDeleteBatchVolumeItem
+            // 
+            this.btn_cmboxDeleteBatchVolumeItem.AutoSize = true;
+            this.btn_cmboxDeleteBatchVolumeItem.Location = new System.Drawing.Point(307, 143);
+            this.btn_cmboxDeleteBatchVolumeItem.Name = "btn_cmboxDeleteBatchVolumeItem";
+            this.btn_cmboxDeleteBatchVolumeItem.Size = new System.Drawing.Size(73, 27);
+            this.btn_cmboxDeleteBatchVolumeItem.TabIndex = 7;
+            this.btn_cmboxDeleteBatchVolumeItem.Text = "Убрать";
+            this.btn_cmboxDeleteBatchVolumeItem.UseVisualStyleBackColor = true;
+            this.btn_cmboxDeleteBatchVolumeItem.Click += new System.EventHandler(this.btn_cmboxDeleteBatchVolumeItem_Click);
+            // 
             // MainForm
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1166, 726);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(120F, 120F);
+            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
+            this.ClientSize = new System.Drawing.Size(1166, 700);
             this.Controls.Add(this.lblPrinterHoldOnActive);
             this.Controls.Add(this.lblPrinterStatusClockStopped);
             this.Controls.Add(this.lblPrinterRemoteOperation);
@@ -963,6 +975,7 @@ namespace Hitachi_IJP_Message_Manager
             this.Controls.Add(this.lbl_IP);
             this.Controls.Add(this.btnDisconnect);
             this.Controls.Add(this.btnConnect);
+            this.Controls.Add(this.btn_cmboxDeleteBatchVolumeItem);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MaximizeBox = false;
@@ -1058,6 +1071,7 @@ namespace Hitachi_IJP_Message_Manager
         private System.Windows.Forms.Label lblProgramHoldOn;
         private System.Windows.Forms.Label label18;
         private System.Windows.Forms.Button btn_cmboxNewBatchVolumeConfirm;
+        private System.Windows.Forms.Button btn_cmboxDeleteBatchVolumeItem;
     }
 }
 

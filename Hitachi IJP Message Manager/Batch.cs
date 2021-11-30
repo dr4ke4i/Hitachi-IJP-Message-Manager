@@ -31,7 +31,11 @@ namespace Hitachi_IJP_Message_Manager
                         is_new = false;
                 }
                 if (is_new)
+                {
                     PossibleVolume.Add(bags);
+                    PossibleVolume.Sort();
+
+                }
             }
 
             public CDataTypes.structInfo Info;

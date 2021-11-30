@@ -162,7 +162,7 @@ namespace Hitachi_IJP_Message_Manager
                     }
                 }
                 public bool ClockStoppedRAW;
-                public string ClockStoppedString { get { return ClockStoppedRAW == true ? "Остановлен" : "Текущее время"; } }
+                public string ClockStoppedString { get { return ClockStoppedRAW == true ? "время заморожено" : "текущее время"; } }
             }
             public struct structSettings
             {
@@ -611,7 +611,7 @@ namespace Hitachi_IJP_Message_Manager
         {
             // To send several attributes at once we need to keep S/S Management Flag "1"
             bool result = MB.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
-            byte[] value = { HiByte(pcstring.RawData.Length), LoByte(pcstring.RawData.Length) };
+            byte[] value = { HiByte(pcstring.RawData.Length / 4), LoByte(pcstring.RawData.Length / 4) };
             result &= MB.SetAttribute(0x01, (int)ccPC.Characters_per_Item, value);
             result &= MB.SetAttribute(0x01, (int)ccPC.Print_Character_String, pcstring.RawData);
             //result &= MB.SetAttribute(ccPC.Characters_per_Item, pcstring.Length);

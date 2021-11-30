@@ -27,6 +27,7 @@ namespace Hitachi_IJP_Message_Manager
         {
             public int FullWidth;
             public int SmallWidth;
+            public int Height;
             public bool AppStarting;
         }
         private CWindowForm MyForm;
@@ -38,6 +39,8 @@ namespace Hitachi_IJP_Message_Manager
             MyForm = new CWindowForm();
             MyForm.FullWidth = this.Width;
             MyForm.SmallWidth = MyForm.FullWidth * 3 / 4;
+            MyForm.Height = this.Height;
+            this.AutoScaleMode = AutoScaleMode.Dpi;
             MyForm.AppStarting = true;
 
             Log = new CLog(@".\log.txt.csv");
@@ -60,15 +63,14 @@ namespace Hitachi_IJP_Message_Manager
             NextBatch = new CBatch(Settings.StartCounter, -1, Settings.MaintBags, Settings.BrokenBags,
                 Settings.Volume, Settings.StartDate, Settings.LotInt);
 
-            foreach(int value in Settings.PossibleVolumeList)
+            foreach(int _value in Settings.PossibleVolumeList)
             {
-                Batch.Data.AddToPossibleVolumeList(value);
+                Batch.Data.AddToPossibleVolumeList(_value);
             }
-            Batch.Data.PossibleVolume.Sort();
 
-            foreach(int value in Batch.Data.PossibleVolume)
+            foreach(int _value in Batch.Data.PossibleVolume)
             {
-                cmboxVolume.Items.Add(value);
+                cmboxVolume.Items.Add(_value);
             }
             cmboxVolume.SelectedIndex = ClosestIndex(cmboxVolume.Items, Batch.Delta.Volume);
 
@@ -487,16 +489,16 @@ namespace Hitachi_IJP_Message_Manager
                 HoldOn = true;
                 // todo: MessageBox in a separate thread
             }
-            else
+            else // Everything's good
             {
                 HoldOn = false;
-                LogAddCheckpoint(null, null, Printer, Printer, _outputlistbox: true);
+                LogAddCheckpoint(null, null, null, Printer, _outputlistbox: true);
+                cmboxVolume.Items.Clear();
+                foreach (int _item in Batch.Data.PossibleVolume)
+                    cmboxVolume.Items.Add(_item);
+                cmboxVolume.SelectedIndex = ClosestIndex(cmboxVolume.Items, Batch.Delta.Volume);
             }
-
             MaintenanceOn = false;  // ? ? ?
-
-            // to check: will it cause 'ComboBox_SelectionChangeCommitted' event?
-            cmboxVolume.SelectedIndex = ClosestIndex(cmboxVolume.Items, Batch.Delta.Volume);
         }
 
         private void ConnectToPrinter()
@@ -712,11 +714,12 @@ namespace Hitachi_IJP_Message_Manager
 
         private void cmboxVolume_KeyPress(object sender, KeyPressEventArgs e)
         {
-            e.Handled = !char.IsDigit(e.KeyChar) && !char.IsControl(e.KeyChar);
-            if (!e.Handled)
+            if (char.IsDigit(e.KeyChar))
             {
                 btn_cmboxNewBatchVolumeConfirm.Visible = true;
-            }
+                btn_cmboxDeleteBatchVolumeItem.Visible = false;
+            }            
+            e.Handled = !char.IsDigit(e.KeyChar) && !char.IsControl(e.KeyChar);
         }
 
         private void cmboxVolume_SelectionChangeCommitted(object sender, EventArgs e)
@@ -739,17 +742,19 @@ namespace Hitachi_IJP_Message_Manager
                 MessageBox.Show("Невозможно изменить объём партии", "Ошибка");
             }
             btn_cmboxNewBatchVolumeConfirm.Visible = false;
+            btn_cmboxDeleteBatchVolumeItem.Visible = true;
         }
 
         private void cmboxVolume_KeyDown(object sender, KeyEventArgs e)
         {
-            if (e.KeyCode==Keys.Enter)
+            if (e.KeyCode == Keys.Enter)
             {
                 btn_cmboxNewBatchVolumeConfirm.PerformClick();
             }
-            else if (e.KeyCode==Keys.Escape)
+            else if (e.KeyCode == Keys.Escape)
             {
                 btn_cmboxNewBatchVolumeConfirm.Visible = false;
+                btn_cmboxDeleteBatchVolumeItem.Visible = true;
                 cmboxVolume.SelectedIndex = ClosestIndex(cmboxVolume.Items, Batch.Delta.Volume);
                 cmboxVolume.Update();
                 UpdateComponents();
@@ -765,37 +770,63 @@ namespace Hitachi_IJP_Message_Manager
                 int prev_volume = Batch.Delta.Volume;
                 if (Batch.SetVolume(new_value))
                 {
-                    DialogResult user_answer = MessageBox.Show($"Хотите добавить {new_value} в список постоянных вариантов объёма партии?",
-                                                                "Вопрос",
-                                                                MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question, MessageBoxDefaultButton.Button3);
-                    if (user_answer == DialogResult.Cancel)
+                    bool _is_new = true;
+                    List<int> new_list = new List<int>();
+                    foreach (int _item in cmboxVolume.Items)
                     {
-                        // Log User Cancelled Changes
-                        AddLineToLogs($"Пользователь отменил ввод объёма партии", _outputlistbox: true);
-                        Batch.SetVolume(prev_volume);
-                        cmboxVolume.SelectedIndex = ClosestIndex(cmboxVolume.Items, Batch.Delta.Volume);
-                        cmboxVolume.Update();
+                        if (_item == new_value)
+                            _is_new = false;
+                        new_list.Add(_item);
                     }
-                    else
+
+                    if (_is_new)
                     {
-                        btn_cmboxNewBatchVolumeConfirm.Visible = false;
-                        Batch.SetVolume(new_value);
-                        // Log success
-                        LogAddCheckpoint(Batch, null, null, null, _outputlistbox: true);
-                        if (user_answer == DialogResult.Yes || user_answer == DialogResult.No)
+                        DialogResult user_answer = MessageBox.Show($"Хотите добавить {new_value} в список постоянных (сохранённых) вариантов объёма партии?\n\n" +
+                                                                   $"[Да] - вариант объёма партии {new_value} станет постоянным, даже после выхода из программы\n" +
+                                                                   $"[Нет] - вариант объёма партии {new_value} сохранится только на время текущей партии\n" +
+                                                                   $"[Отмена] - ничего не произойдёт\n",
+                                                                    "Вопрос",
+                                                                    MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question, MessageBoxDefaultButton.Button3);
+                        if (user_answer == DialogResult.Cancel)
                         {
-                            cmboxVolume.Items.Add(new_value);
+                            // Log User Cancelled Changes
+                            AddLineToLogs($"Пользователь отменил ввод объёма партии", _outputlistbox: true);
+                            Batch.SetVolume(prev_volume);
                             cmboxVolume.SelectedIndex = ClosestIndex(cmboxVolume.Items, Batch.Delta.Volume);
                             cmboxVolume.Update();
                         }
-                        if (user_answer == DialogResult.Yes)
+                        else
                         {
-                            Batch.Data.PossibleVolume.Add(new_value);
-                            // Log User Choice to Save Volume to Possible Volume List
-                            AddLineToLogs($"{new_value} добавлено в список возможных объёмов партии", _outputlistbox: true);
+                            btn_cmboxNewBatchVolumeConfirm.Visible = false;
+                            btn_cmboxDeleteBatchVolumeItem.Visible = true;
+                            Batch.SetVolume(new_value);
+                            // Log success
+                            LogAddCheckpoint(Batch, null, null, null, _outputlistbox: true);
+                                                
+                            // 'Yes' or 'No' case means we add value to combobox
+                            if (user_answer == DialogResult.Yes || user_answer == DialogResult.No)
+                            {
+                                new_list.Add(new_value);
+                                new_list.Sort();
+                                cmboxVolume.Items.Clear();
+                                foreach (int _item in new_list)
+                                    cmboxVolume.Items.Add(_item);                                                
+                                cmboxVolume.SelectedIndex = ClosestIndex(cmboxVolume.Items, Batch.Delta.Volume);
+                                cmboxVolume.Update();
+                            }
+                            // 'Yes' means we additionally save settings to file
+                            if (user_answer == DialogResult.Yes)
+                            {
+                                Batch.Data.AddToPossibleVolumeList(new_value);
+                                SaveSettingsToFile(Batch, null, false);
+                                AddLineToLogs($"{new_value} добавлено в список возможных объёмов партии", _outputlistbox: true);
+                            }
+                            UpdateComponents();
                         }
-                        SaveSettingsToFile(Batch);
-                        UpdateComponents();
+                    }
+                    else
+                    {
+                        AddLineToLogs($"{new_value} уже существует в списоке возможных объёмов партии", _outputlistbox: true);
                     }
                 }
                 else    // Log failure
@@ -808,6 +839,78 @@ namespace Hitachi_IJP_Message_Manager
             {
                 AddLineToLogs($"Некорректные данные: \"{cmboxVolume.Text}\"", _outputlistbox: true);
                 MessageBox.Show("Введено некорректное число", "Ошибка");
+            }
+        }        
+
+        private void btn_cmboxDeleteBatchVolumeItem_Click(object sender, EventArgs e)
+        {
+            // Log begin
+            AddLineToLogs($"Объём текущей партии, нажата кнопка \"Удалить\". cmboxVolume.Text=\"{cmboxVolume.Text}\"...", _outputlistbox: true);
+            if (int.TryParse(cmboxVolume.Text, out int remove_value))
+            {
+                bool _is_found_cmbox = false;
+                bool _is_found_possiblevolume = false;
+                List<int> new_list_cmbox = new List<int>();
+                List<int> new_list_possiblevolume = new List<int>();
+
+                foreach (int _item in Batch.Data.PossibleVolume)
+                {
+                    if (_item == remove_value)
+                        _is_found_possiblevolume = true;
+                    else
+                        new_list_possiblevolume.Add(_item);
+                }
+                foreach (int _item in cmboxVolume.Items)
+                {
+                    if (_item == remove_value)
+                        _is_found_cmbox = true;
+                    else
+                        new_list_cmbox.Add(_item);
+                }
+
+                AddLineToLogs($"В списке cmboxVolume: значение {remove_value} {(_is_found_cmbox ? "найдено" : "не найдено")}", _outputlistbox: true);
+                AddLineToLogs($"В списке PossibleVolume: значение {remove_value} {(_is_found_possiblevolume ? "найдено" : "не найдено")}", _outputlistbox: true);
+
+                DialogResult user_answer = DialogResult.Yes;
+                if (_is_found_possiblevolume)
+                {
+                    user_answer = MessageBox.Show($"Хотите удалить {remove_value} из списка постоянных (сохранённых) вариантов объёма партии?\n\n" +
+                                                  $"В случае ошибочного удаления можно будет ввести значение объёма партии заново и подтвердить " +
+                                                  $"добавление в список постоянных вариантов объёма партии",
+                                                  "Вопрос",
+                                                  MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1);
+                    if (user_answer == DialogResult.Yes)
+                    {
+                        Batch.Data.PossibleVolume = new_list_possiblevolume;
+                        SaveSettingsToFile(Batch, null, _form: false);
+                        AddLineToLogs($"Удалено значение из Batch.PossibleVolume {{ {string.Join(",", Batch.Data.PossibleVolume)} }}", _outputlistbox: true);
+                    }
+                    else
+                    {
+                        AddLineToLogs($"Ответ пользователя: \"Не удалять\"", _outputlistbox: true);
+                    }
+                }
+                if (_is_found_cmbox && user_answer==DialogResult.Yes)
+                {
+                    cmboxVolume.Items.Clear();
+                    if (new_list_cmbox.Count == 0)
+                    {
+                        new_list_cmbox.Add(1600);
+                    }
+                    foreach (int _item in new_list_cmbox)
+                        cmboxVolume.Items.Add(_item);
+                    cmboxVolume.SelectedIndex = ClosestIndex(cmboxVolume.Items, Batch.Delta.Volume);
+                    cmboxVolume.Update();
+                    AddLineToLogs($"Удалено значение из cmboxVolume {{ {string.Join(",", cmboxVolume.Items.Cast<int>())} }}", _outputlistbox: true);
+                }
+                if (!_is_found_cmbox && !_is_found_possiblevolume)
+                {
+                    AddLineToLogs($"Ошибка. Невозможно найти значение \"{cmboxVolume.Text}\"", _outputlistbox: true);
+                }
+            }
+            else    // Log incorrect data
+            {
+                AddLineToLogs($"Некорректные данные: \"{cmboxVolume.Text}\"", _outputlistbox: true);
             }
         }
 
