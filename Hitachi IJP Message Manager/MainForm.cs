@@ -63,16 +63,35 @@ namespace Hitachi_IJP_Message_Manager
             NextBatch = new CBatch(Settings.StartCounter, -1, Settings.MaintBags, Settings.BrokenBags,
                 Settings.Volume, Settings.StartDate, Settings.LotInt);
 
-            foreach(int _value in Settings.PossibleVolumeList)
+            bool _has_batch1volume = false;
+            bool _has_batch2volume = false;
+            List<int> cmbox_list = new List<int>();
+            foreach (int _value in Settings.PossibleVolumeList)
             {
                 Batch.Data.AddToPossibleVolumeList(_value);
+                NextBatch.Data.AddToPossibleVolumeList(_value);
+                cmbox_list.Add(_value);
+                if (_value == Batch.Delta.Volume)
+                    _has_batch1volume = true;
+                if (_value == NextBatch.Delta.Volume)
+                    _has_batch2volume = true;
             }
-
-            foreach(int _value in Batch.Data.PossibleVolume)
+            if (!_has_batch1volume)
             {
-                cmboxVolume.Items.Add(_value);
+                cmbox_list.Add(Batch.Delta.Volume);
             }
-            cmboxVolume.SelectedIndex = ClosestIndex(cmboxVolume.Items, Batch.Delta.Volume);
+            if ((!_has_batch2volume) && (Batch.Delta.Volume != NextBatch.Delta.Volume))
+            {
+                cmbox_list.Add(NextBatch.Delta.Volume);
+            }
+            cmbox_list.Sort();
+            foreach (int _value in cmbox_list)
+            {
+                cmboxCurrentBatchVolume.Items.Add(_value);
+                cmboxNextBatchVolume.Items.Add(_value);
+            }                
+            cmboxCurrentBatchVolume.SelectedIndex = ClosestIndex(cmboxCurrentBatchVolume.Items, Batch.Delta.Volume);
+            cmboxNextBatchVolume.SelectedIndex = ClosestIndex(cmboxNextBatchVolume.Items, NextBatch.Delta.Volume);
 
             chboxBatchDateAUTO.Checked = Settings.AutoDate;
             chboxBatchLotNoAutoINC.Checked = Settings.AutoLot;
@@ -246,34 +265,48 @@ namespace Hitachi_IJP_Message_Manager
             lblBrokenBags.Text = Batch.Delta.Broken.ToString();
             lblMaintBags.Text = Batch.Delta.Maint.ToString();
 
+            // Current batch
             lblBatchLotNo.Text = Batch.Data.Info.LotStr;
+            lblMarkedBagsCurrB.Text = Convert.ToString(Batch.LastKnownCounter - Batch.StartCounter - Batch.Delta.Maint - Batch.Delta.Broken);
+            lblVolumeCurrB.Text = Batch.Delta.Volume.ToString();
+            lblBrokenBagsCurrB.Text = Batch.Delta.Broken.ToString();
+            lblMaintBagsCurrB.Text = Batch.Delta.Maint.ToString();
             lblBatchDate.Text = Batch.Data.Info.StartDateStr;
 
-            if (chboxBatchLotNoAutoINC.Checked)
-            {
-                NextBatch.Data.Info.Lot = Batch.Data.Info.Lot + 1;
-                tboxBatchNextLotNo.Enabled = false;
-                btn_tbBatchNextLotNoConfirm.Enabled = false;
-                lblBatchNextLotNo.Text = NextBatch.Data.Info.LotStr;
-            }
-            else
-            {
-                tboxBatchNextLotNo.Enabled = true;
-                btn_tbBatchNextLotNoConfirm.Enabled = true;
-                lblBatchNextLotNo.Text = NextBatch.Data.Info.LotStr;
-            }
+            // Next batch
+            lblBatchNextLotNo.Text = NextBatch.Data.Info.LotStr;
+            lblMarkedBagsNextB.Text = Convert.ToString(NextBatch.LastKnownCounter - NextBatch.StartCounter - NextBatch.Delta.Maint - NextBatch.Delta.Broken);
+            lblVolumeNextB.Text = NextBatch.Delta.Volume.ToString();
+            lblBrokenBagsNextB.Text = NextBatch.Delta.Broken.ToString();
+            lblMaintBagsNextB.Text = NextBatch.Delta.Maint.ToString();
+            if (chboxBatchDateAUTO.Checked) NextBatch.Data.Info.StartDate = System.DateTime.Now;
+            lblBatchNextDate.Text = NextBatch.Data.Info.StartDateStr;
 
-            if (chboxBatchDateAUTO.Checked)
-            {
-                dtpickBatchNextDate.Enabled = false;
-                NextBatch.Data.Info.StartDate = System.DateTime.Now.AddHours(5);
-                lblBatchNextDate.Text = NextBatch.Data.Info.StartDateStr;
-            }
-            else
-            {
-                dtpickBatchNextDate.Enabled = true;
-                lblBatchNextDate.Text = NextBatch.Data.Info.StartDateStr;
-            }
+            //if (chboxBatchLotNoAutoINC.Checked)
+            //{
+            //    NextBatch.Data.Info.Lot = Batch.Data.Info.Lot + 1;
+            //    tboxBatchNextLotNo.Enabled = false;
+            //    btn_tbBatchNextLotNoConfirm.Enabled = false;
+            //    lblBatchNextLotNo.Text = NextBatch.Data.Info.LotStr;
+            //}
+            //else
+            //{
+            //    tboxBatchNextLotNo.Enabled = true;
+            //    btn_tbBatchNextLotNoConfirm.Enabled = true;
+            //    lblBatchNextLotNo.Text = NextBatch.Data.Info.LotStr;
+            //}
+
+            //if (chboxBatchDateAUTO.Checked)
+            //{
+            //    dtpickBatchNextDate.Enabled = false;
+            //    NextBatch.Data.Info.StartDate = System.DateTime.Now.AddHours(5);
+            //    lblBatchNextDate.Text = NextBatch.Data.Info.StartDateStr;
+            //}
+            //else
+            //{
+            //    dtpickBatchNextDate.Enabled = true;
+            //    lblBatchNextDate.Text = NextBatch.Data.Info.StartDateStr;
+            //}
 
             if (Printer != null && Printer.PCString.Value != null)
             {
@@ -293,9 +326,6 @@ namespace Hitachi_IJP_Message_Manager
                 if ((!Printer.IsConnected) || (!Printer.IsOnline))
                 {
                     lblPrinterStatusOnline.Text = "X"; lblPrinterStatusOnline.ForeColor = Label.DefaultForeColor;
-                    //lblPrinterStatusReception.Text = "X"; lblPrinterStatusReception.ForeColor = Label.DefaultForeColor;
-                    //lblPrinterStatusError.Text = "X"; lblPrinterStatusError.ForeColor = Label.DefaultForeColor;
-                    //lblPrinterStatusWarning.Text = "X"; lblPrinterStatusWarning.ForeColor = Label.DefaultForeColor;
                     lblPrinterStatusErrorText.Text = "X"; lblPrinterStatusErrorText.ForeColor = Label.DefaultForeColor;
                     lblPrinterStatusWarningText.Text = "X"; lblPrinterStatusWarningText.ForeColor = Label.DefaultForeColor;                    
                     lblPrinterRemoteOperation.Text = "X"; lblPrinterRemoteOperation.ForeColor = Label.DefaultForeColor;
@@ -308,12 +338,6 @@ namespace Hitachi_IJP_Message_Manager
                     {
                         lblPrinterStatusOnline.Text = Printer.Status.Online ? "OK" : "нет";
                         lblPrinterStatusOnline.ForeColor = Printer.Status.Online ? Color.Green : Color.Red;
-                        //lblPrinterStatusReception.Text = Printer.Status.Reception.ToString();
-                        //lblPrinterStatusReception.ForeColor = Printer.Status.Reception ? Color.Green : Color.Red;
-                        //lblPrinterStatusError.Text = "0x" + Printer.Status.StatusRaw.ToString("X");
-                        //lblPrinterStatusError.ForeColor = Printer.Status.StatusReady ? Color.Green : Color.Red;
-                        //lblPrinterStatusWarning.Text = "0x" + Printer.Status.WarningRaw.ToString("X");
-                        //lblPrinterStatusWarning.ForeColor = Printer.Status.WarningNoAlarms ? Color.Green : Color.Red;
                         lblPrinterStatusErrorText.Text = Printer.Status.StatusString + " (0x" + Printer.Status.StatusRaw.ToString("X") + ")";
                         lblPrinterStatusErrorText.ForeColor = Printer.Status.StatusReady ? Color.Green : Color.Red;
                         lblPrinterStatusWarningText.Text = Printer.Status.WarningString + " (0x" + Printer.Status.WarningRaw.ToString("X") + ")";
@@ -343,7 +367,14 @@ namespace Hitachi_IJP_Message_Manager
 
         private string GeneratePrintString(CBatch _batch)
         {
-            return $"DATE:{_batch.Data.Info.StartDateStr} LOT:{_batch.Data.Info.LotStr}";
+            if (_batch.Data.Info.Lot <=999)
+            {
+                return $"DATE:{_batch.Data.Info.StartDateStr} LOT:{_batch.Data.Info.Lot.ToString("000")}";
+            }
+            else
+            {
+                return $"DATE:{_batch.Data.Info.StartDateStr} LOT:{_batch.Data.Info.Lot.ToString("0000")}";
+            }
         }
 
         private void AddLineToLogs(string _newline, bool _outputlistbox = false)
@@ -373,7 +404,7 @@ namespace Hitachi_IJP_Message_Manager
             {
                 string[] output =
                 {
-                    $"Batch = {{ .SC={_batch.StartCounter}     " +
+                    $"{ ( _batch == NextBatch ? "NextBatch" : "Batch" ) } = {{ .SC={_batch.StartCounter}     " +
                     $"\t.MB={_batch.Delta.Maint}    .BB={_batch.Delta.Broken}    .VB={_batch.Delta.Volume} ",
                     $"\t.Lot={_batch.Data.Info.LotStr}    .StartDate={_batch.Data.Info.StartDateStr}}}"
                 };
@@ -493,10 +524,10 @@ namespace Hitachi_IJP_Message_Manager
             {
                 HoldOn = false;
                 LogAddCheckpoint(null, null, null, Printer, _outputlistbox: true);
-                cmboxVolume.Items.Clear();
+                cmboxCurrentBatchVolume.Items.Clear();
                 foreach (int _item in Batch.Data.PossibleVolume)
-                    cmboxVolume.Items.Add(_item);
-                cmboxVolume.SelectedIndex = ClosestIndex(cmboxVolume.Items, Batch.Delta.Volume);
+                    cmboxCurrentBatchVolume.Items.Add(_item);
+                cmboxCurrentBatchVolume.SelectedIndex = ClosestIndex(cmboxCurrentBatchVolume.Items, Batch.Delta.Volume);
             }
             MaintenanceOn = false;  // ? ? ?
         }
@@ -714,73 +745,126 @@ namespace Hitachi_IJP_Message_Manager
 
         private void cmboxVolume_KeyPress(object sender, KeyPressEventArgs e)
         {
+            ComboBox _cmbox = (ComboBox)sender;
             if (char.IsDigit(e.KeyChar))
             {
-                btn_cmboxNewBatchVolumeConfirm.Visible = true;
-                btn_cmboxDeleteBatchVolumeItem.Visible = false;
+                if (_cmbox == cmboxCurrentBatchVolume) 
+                    btn_cmboxAddCurrentBatchVolumeItem.Visible = true;
+                if (_cmbox == cmboxNextBatchVolume)
+                    btn_cmboxAddNextBatchVolumeItem.Visible = true;
             }            
             e.Handled = !char.IsDigit(e.KeyChar) && !char.IsControl(e.KeyChar);
         }
 
         private void cmboxVolume_SelectionChangeCommitted(object sender, EventArgs e)
         {
+            ComboBox _cmbox = (ComboBox)sender;
+            CBatch _batch = (_cmbox == cmboxNextBatchVolume ? NextBatch : Batch);
+            string _subst = (_cmbox == cmboxNextBatchVolume ? "следующей" : "текущей");
+            
             // Log begin
-            AddLineToLogs($"Изменение объёма партии...", _outputlistbox: true);
-            if (Batch.SetVolume((int)cmboxVolume.SelectedItem))
+            AddLineToLogs($"Изменение объёма {_subst} партии на {_cmbox.SelectedItem.ToString()}...", _outputlistbox: true);
+            if (_batch.SetVolume((int)_cmbox.SelectedItem))
             {
                 // Log success
-                SaveSettingsToFile(Batch);
+                if (_cmbox == cmboxCurrentBatchVolume) 
+                {
+                    SaveSettingsToFile(Batch, null, _form: false);
+                }
                 UpdateComponents();
-                LogAddCheckpoint(Batch, null, null, null, _outputlistbox: true);
+                LogAddCheckpoint(_batch, null, null, null, _outputlistbox: true);
             }
             else    // Log failure
             {
-                AddLineToLogs($"Невозможно изменить объём партии на \"{cmboxVolume.SelectedItem.ToString()}\"", _outputlistbox: true);
-                cmboxVolume.SelectedIndex = ClosestIndex(cmboxVolume.Items, Batch.Delta.Volume);
-                cmboxVolume.Update();
+                AddLineToLogs($"Невозможно изменить объём {_subst} партии на \"{_cmbox.SelectedItem.ToString()}\"", _outputlistbox: true);
+                _cmbox.SelectedIndex = ClosestIndex(_cmbox.Items, _batch.Delta.Volume);
+                _cmbox.Update();
                 UpdateComponents();
                 MessageBox.Show("Невозможно изменить объём партии", "Ошибка");
             }
-            btn_cmboxNewBatchVolumeConfirm.Visible = false;
-            btn_cmboxDeleteBatchVolumeItem.Visible = true;
+            if (_cmbox == cmboxCurrentBatchVolume)
+                btn_cmboxAddCurrentBatchVolumeItem.Visible = false;
+            if (_cmbox == cmboxNextBatchVolume)
+                btn_cmboxAddNextBatchVolumeItem.Visible = false;
         }
 
         private void cmboxVolume_KeyDown(object sender, KeyEventArgs e)
         {
+            ComboBox _cmbox = (ComboBox)sender;
+            CBatch _batch = (_cmbox == cmboxCurrentBatchVolume ? Batch : NextBatch);
+
             if (e.KeyCode == Keys.Enter)
             {
-                btn_cmboxNewBatchVolumeConfirm.PerformClick();
+                AddNewBatchVolume(_cmbox, _batch);
             }
             else if (e.KeyCode == Keys.Escape)
             {
-                btn_cmboxNewBatchVolumeConfirm.Visible = false;
-                btn_cmboxDeleteBatchVolumeItem.Visible = true;
-                cmboxVolume.SelectedIndex = ClosestIndex(cmboxVolume.Items, Batch.Delta.Volume);
-                cmboxVolume.Update();
-                UpdateComponents();
+                if (_cmbox == cmboxCurrentBatchVolume)
+                    btn_cmboxAddCurrentBatchVolumeItem.Visible = false;
+                if (_cmbox == cmboxNextBatchVolume)
+                    btn_cmboxAddNextBatchVolumeItem.Visible = false;
+                _cmbox.SelectedIndex = ClosestIndex(_cmbox.Items, _batch.Delta.Volume);
+                _cmbox.Update();
             }
         }
 
-        private void btn_cmboxNewBatchVolumeConfirm_Click(object sender, EventArgs e)
+        private void AddNewBatchVolume(ComboBox _cmbox, CBatch _batch)
         {
             // Log begin
-            AddLineToLogs($"Новый объём партии (нажата кнопка \"Ввод\")...", _outputlistbox: true);
-            if (int.TryParse(cmboxVolume.Text, out int new_value))
-            {
-                int prev_volume = Batch.Delta.Volume;
-                if (Batch.SetVolume(new_value))
-                {
-                    bool _is_new = true;
-                    List<int> new_list = new List<int>();
-                    foreach (int _item in cmboxVolume.Items)
-                    {
-                        if (_item == new_value)
-                            _is_new = false;
-                        new_list.Add(_item);
-                    }
+            AddLineToLogs($"Добавление объёма партии {_cmbox.Text} (нажата кнопка \"Ввод\" в {_cmbox.Name})...", _outputlistbox: true);
+            LogAddCheckpoint(_batch, null, null, null, _outputlistbox: true);
+            AddLineToLogs($"PossibleVolume {{ {string.Join(",", Batch.Data.PossibleVolume)} }}", _outputlistbox: true);
 
+            if (int.TryParse(_cmbox.Text, out int new_value))
+            {
+                bool _is_new = true;
+                bool _has_batch1volume = false;
+                bool _has_batch2volume = false;
+
+                List<int> new_list = new List<int>();
+                foreach (int _item in _batch.Data.PossibleVolume)
+                {
+                    if (_item == new_value)
+                    {
+                        if (_is_new)
+                        {
+                            new_list.Add(_item);
+                            _is_new = false;
+                        }
+                    }
+                    else    // _item != new_value
+                        new_list.Add(_item);
+
+                    if (_item == Batch.Delta.Volume)
+                        _has_batch1volume = true;
+                    if (_item == NextBatch.Delta.Volume)
+                        _has_batch2volume = true;
+                }
+                if (!_has_batch1volume)
+                {
+                    new_list.Add(Batch.Delta.Volume);
+                    if (new_value == Batch.Delta.Volume)
+                    {
+                        _is_new = false;
+                    }
+                }
+                if ((!_has_batch2volume) && (Batch.Delta.Volume != NextBatch.Delta.Volume))
+                {
+                    new_list.Add(NextBatch.Delta.Volume);
+                    if (new_value == NextBatch.Delta.Volume)
+                    {
+                        _is_new = false;
+                    }
+                }
+
+                int prev_volume = _batch.Delta.Volume;
+                if (_batch.SetVolume(new_value))
+                {
                     if (_is_new)
                     {
+                        new_list.Add(new_value);
+                        new_list.Sort();
+
                         DialogResult user_answer = MessageBox.Show($"Хотите добавить {new_value} в список постоянных (сохранённых) вариантов объёма партии?\n\n" +
                                                                    $"[Да] - вариант объёма партии {new_value} станет постоянным, даже после выхода из программы\n" +
                                                                    $"[Нет] - вариант объёма партии {new_value} сохранится только на время текущей партии\n" +
@@ -789,38 +873,44 @@ namespace Hitachi_IJP_Message_Manager
                                                                     MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question, MessageBoxDefaultButton.Button3);
                         if (user_answer == DialogResult.Cancel)
                         {
-                            // Log User Cancelled Changes
+                            // Log User Cancel
                             AddLineToLogs($"Пользователь отменил ввод объёма партии", _outputlistbox: true);
-                            Batch.SetVolume(prev_volume);
-                            cmboxVolume.SelectedIndex = ClosestIndex(cmboxVolume.Items, Batch.Delta.Volume);
-                            cmboxVolume.Update();
+                            _batch.SetVolume(prev_volume);
+                            _cmbox.SelectedIndex = ClosestIndex(_cmbox.Items, _batch.Delta.Volume);
+                            _cmbox.Update();
                         }
                         else
                         {
-                            btn_cmboxNewBatchVolumeConfirm.Visible = false;
-                            btn_cmboxDeleteBatchVolumeItem.Visible = true;
-                            Batch.SetVolume(new_value);
+                            //_batch.SetVolume(new_value);
                             // Log success
-                            LogAddCheckpoint(Batch, null, null, null, _outputlistbox: true);
-                                                
-                            // 'Yes' or 'No' case means we add value to combobox
-                            if (user_answer == DialogResult.Yes || user_answer == DialogResult.No)
+                            LogAddCheckpoint(_batch, null, null, null, _outputlistbox: true);
+
+                            // 'Yes' or 'No' case means we add value to combobox(-es)                           
+                            cmboxCurrentBatchVolume.Items.Clear();
+                            cmboxNextBatchVolume.Items.Clear();
+                            foreach (int _item in new_list)
                             {
-                                new_list.Add(new_value);
-                                new_list.Sort();
-                                cmboxVolume.Items.Clear();
-                                foreach (int _item in new_list)
-                                    cmboxVolume.Items.Add(_item);                                                
-                                cmboxVolume.SelectedIndex = ClosestIndex(cmboxVolume.Items, Batch.Delta.Volume);
-                                cmboxVolume.Update();
+                                cmboxCurrentBatchVolume.Items.Add(_item);
+                                cmboxNextBatchVolume.Items.Add(_item);
                             }
+                            cmboxNextBatchVolume.SelectedIndex = ClosestIndex(cmboxNextBatchVolume.Items, NextBatch.Delta.Volume);
+                            cmboxCurrentBatchVolume.SelectedIndex = ClosestIndex(cmboxCurrentBatchVolume.Items, Batch.Delta.Volume);
+                            cmboxNextBatchVolume.Update();
+                            cmboxCurrentBatchVolume.Update();
+
                             // 'Yes' means we additionally save settings to file
                             if (user_answer == DialogResult.Yes)
                             {
                                 Batch.Data.AddToPossibleVolumeList(new_value);
-                                SaveSettingsToFile(Batch, null, false);
                                 AddLineToLogs($"{new_value} добавлено в список возможных объёмов партии", _outputlistbox: true);
                             }
+
+                            if (_cmbox == cmboxCurrentBatchVolume)
+                                btn_cmboxAddCurrentBatchVolumeItem.Visible = false;
+                            if (_cmbox == cmboxNextBatchVolume)
+                                btn_cmboxAddNextBatchVolumeItem.Visible = false;
+
+                            SaveSettingsToFile(Batch, null, false);
                             UpdateComponents();
                         }
                     }
@@ -831,98 +921,168 @@ namespace Hitachi_IJP_Message_Manager
                 }
                 else    // Log failure
                 {
-                    AddLineToLogs($"Невозможно изменить объём партии на \"{cmboxVolume.Text}\"", _outputlistbox: true);
+                    AddLineToLogs($"Невозможно изменить объём партии на \"{_cmbox.Text}\"", _outputlistbox: true);
                     MessageBox.Show("Невозможно изменить объём партии", "Ошибка");
                 }
             }
             else    // Log incorrect data
             {
-                AddLineToLogs($"Некорректные данные: \"{cmboxVolume.Text}\"", _outputlistbox: true);
-                MessageBox.Show("Введено некорректное число", "Ошибка");
+                AddLineToLogs($"Некорректные данные: \"{_cmbox.Text}\"", _outputlistbox: true);
+                MessageBox.Show("Введено некорректное число", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
-        }        
+        }
 
-        private void btn_cmboxDeleteBatchVolumeItem_Click(object sender, EventArgs e)
+        private void btn_cmboxAddCurrentBatchVolumeItem_Click(object sender, EventArgs e)
         {
+            AddNewBatchVolume(cmboxCurrentBatchVolume, Batch);
+        }
+
+        private void btn_cmboxAddNextBatchVolumeItem_Click(object sender, EventArgs e)
+        {
+            AddNewBatchVolume(cmboxNextBatchVolume, NextBatch);
+        }
+
+        private void DeleteBatchVolume(ComboBox _cmbox)
+        {
+            string _subst = (_cmbox == cmboxCurrentBatchVolume ? "текущей" : "следующей");
+
             // Log begin
-            AddLineToLogs($"Объём текущей партии, нажата кнопка \"Удалить\". cmboxVolume.Text=\"{cmboxVolume.Text}\"...", _outputlistbox: true);
-            if (int.TryParse(cmboxVolume.Text, out int remove_value))
+            AddLineToLogs($"Удаление объёма \"{_cmbox.Text}\" (нажата кнопка \"Удалить\" в {_subst} партии)...", _outputlistbox: true);
+            if (int.TryParse(_cmbox.Text, out int remove_value))
             {
-                bool _is_found_cmbox = false;
                 bool _is_found_possiblevolume = false;
+                bool _is_found_batch1volume = false;
+                bool _is_found_batch2volume = false;
                 List<int> new_list_cmbox = new List<int>();
                 List<int> new_list_possiblevolume = new List<int>();
-
                 foreach (int _item in Batch.Data.PossibleVolume)
                 {
                     if (_item == remove_value)
+                    {
                         _is_found_possiblevolume = true;
-                    else
-                        new_list_possiblevolume.Add(_item);
-                }
-                foreach (int _item in cmboxVolume.Items)
-                {
-                    if (_item == remove_value)
-                        _is_found_cmbox = true;
-                    else
+                    }
+                    else    // _item != new_value
+                    {
                         new_list_cmbox.Add(_item);
+                        new_list_possiblevolume.Add(_item);
+                    }
+                }
+                //if (remove_value == Batch.Delta.Volume)
+                //    _is_found_batch1volume = true;
+                //else
+                //    new_list_cmbox.Add(Batch.Delta.Volume);
+
+                //if (remove_value == NextBatch.Delta.Volume)
+                //    _is_found_batch2volume = true;
+                //else
+                //    new_list_cmbox.Add(NextBatch.Delta.Volume);
+                if (new_list_cmbox.Count == 0)
+                {
+                    new_list_cmbox.Add(1600);
+                }
+                if (new_list_possiblevolume.Count == 0)
+                {
+                    new_list_possiblevolume.Add(1600);
                 }
 
-                AddLineToLogs($"В списке cmboxVolume: значение {remove_value} {(_is_found_cmbox ? "найдено" : "не найдено")}", _outputlistbox: true);
-                AddLineToLogs($"В списке PossibleVolume: значение {remove_value} {(_is_found_possiblevolume ? "найдено" : "не найдено")}", _outputlistbox: true);
+                if (remove_value == Batch.Delta.Volume)
+                    _is_found_batch1volume = true;
+                if (remove_value == NextBatch.Delta.Volume)
+                    _is_found_batch2volume = true;
+                new_list_cmbox.Add(Batch.Delta.Volume);
+                new_list_cmbox.Add(NextBatch.Delta.Volume);
 
-                DialogResult user_answer = DialogResult.Yes;
-                if (_is_found_possiblevolume)
+                new_list_cmbox.Sort();
+                new_list_possiblevolume.Sort();
+
+                AddLineToLogs($"В списке PossibleVolume: значение {remove_value} {(_is_found_possiblevolume ? "найдено" : "не найдено")}", _outputlistbox: true);
+                AddLineToLogs($"В объёме текущей партии: значение {remove_value} {(_is_found_batch1volume ? "найдено" : "не найдено")}", _outputlistbox: true);
+                AddLineToLogs($"В объёме следующей партии: значение {remove_value} {(_is_found_batch2volume ? "найдено" : "не найдено")}", _outputlistbox: true);
+
+                if (_is_found_batch1volume || _is_found_batch2volume)
                 {
-                    user_answer = MessageBox.Show($"Хотите удалить {remove_value} из списка постоянных (сохранённых) вариантов объёма партии?\n\n" +
-                                                  $"В случае ошибочного удаления можно будет ввести значение объёма партии заново и подтвердить " +
-                                                  $"добавление в список постоянных вариантов объёма партии",
-                                                  "Вопрос",
-                                                  MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1);
+                    AddLineToLogs($"Невозможно удалить {remove_value}, поскольку оно существует в {(_is_found_batch1volume?"текущей ":"")}" +
+                        $"{(_is_found_batch1volume && _is_found_batch2volume ? "и " : "")} {(_is_found_batch2volume ? "следующей " : "")}партии",
+                        _outputlistbox: true);
+                }
+                else
+                {
+                    DialogResult user_answer = DialogResult.Yes;
+                    if (_is_found_possiblevolume)
+                    {
+                        user_answer = MessageBox.Show($"Хотите удалить {remove_value} из списка постоянных (сохранённых) вариантов объёма партии?\n\n" +
+                                                      $"В случае ошибочного удаления можно будет ввести значение объёма партии заново.",
+                                                      "Вопрос",
+                                                      MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1);
+                        if (user_answer == DialogResult.Yes)
+                        {
+                            Batch.Data.PossibleVolume = new_list_possiblevolume;
+                            NextBatch.Data.PossibleVolume = new_list_possiblevolume;
+                            SaveSettingsToFile(Batch, null, _form: false);
+                            AddLineToLogs($"Удалено значение из Batch.PossibleVolume {{ {string.Join(",", Batch.Data.PossibleVolume)} }}", _outputlistbox: true);
+                        }
+                        else
+                        {
+                            AddLineToLogs($"Ответ пользователя: \"Не удалять\"", _outputlistbox: true);
+                        }
+                    }
                     if (user_answer == DialogResult.Yes)
                     {
-                        Batch.Data.PossibleVolume = new_list_possiblevolume;
-                        SaveSettingsToFile(Batch, null, _form: false);
-                        AddLineToLogs($"Удалено значение из Batch.PossibleVolume {{ {string.Join(",", Batch.Data.PossibleVolume)} }}", _outputlistbox: true);
+                        cmboxCurrentBatchVolume.Items.Clear();
+                        cmboxNextBatchVolume.Items.Clear();
+                        foreach (int _item in new_list_cmbox)
+                        {
+                            cmboxCurrentBatchVolume.Items.Add(_item);
+                            cmboxNextBatchVolume.Items.Add(_item);
+                        }
+                        cmboxCurrentBatchVolume.SelectedIndex = ClosestIndex(cmboxCurrentBatchVolume.Items, Batch.Delta.Volume);
+                        cmboxNextBatchVolume.SelectedIndex = ClosestIndex(cmboxNextBatchVolume.Items, NextBatch.Delta.Volume);
+                        cmboxCurrentBatchVolume.Update();
+                        cmboxNextBatchVolume.Update();
+                        UpdateComponents();
+                        AddLineToLogs($"Удалено значение из {_cmbox.Name} {{ {string.Join(",", _cmbox.Items.Cast<int>())} }}", _outputlistbox: true);
                     }
-                    else
+                    if (!_is_found_possiblevolume && !_is_found_batch1volume & !_is_found_batch2volume)
                     {
-                        AddLineToLogs($"Ответ пользователя: \"Не удалять\"", _outputlistbox: true);
+                        AddLineToLogs($"Ошибка. Невозможно найти значение \"{_cmbox.Text}\"", _outputlistbox: true);
                     }
-                }
-                if (_is_found_cmbox && user_answer==DialogResult.Yes)
-                {
-                    cmboxVolume.Items.Clear();
-                    if (new_list_cmbox.Count == 0)
-                    {
-                        new_list_cmbox.Add(1600);
-                    }
-                    foreach (int _item in new_list_cmbox)
-                        cmboxVolume.Items.Add(_item);
-                    cmboxVolume.SelectedIndex = ClosestIndex(cmboxVolume.Items, Batch.Delta.Volume);
-                    cmboxVolume.Update();
-                    AddLineToLogs($"Удалено значение из cmboxVolume {{ {string.Join(",", cmboxVolume.Items.Cast<int>())} }}", _outputlistbox: true);
-                }
-                if (!_is_found_cmbox && !_is_found_possiblevolume)
-                {
-                    AddLineToLogs($"Ошибка. Невозможно найти значение \"{cmboxVolume.Text}\"", _outputlistbox: true);
-                }
+                }                
             }
             else    // Log incorrect data
             {
-                AddLineToLogs($"Некорректные данные: \"{cmboxVolume.Text}\"", _outputlistbox: true);
+                AddLineToLogs($"Некорректные данные: \"{_cmbox.Text}\"", _outputlistbox: true);
             }
+        }
+
+        private void btn_cmboxDeleteCurrentBatchVolumeItem_Click(object sender, EventArgs e)
+        {
+            DeleteBatchVolume(cmboxCurrentBatchVolume);
+        }
+
+        private void btn_cmboxDeleteNextBatchVolumeItem_Click(object sender, EventArgs e)
+        {
+            DeleteBatchVolume(cmboxNextBatchVolume);
         }
 
         private void chboxBatchLotNoAutoINC_CheckedChanged(object sender, EventArgs e)
         {
             if (!MyForm.AppStarting)
             {
+                if (chboxBatchLotNoAutoINC.Checked)
+                {
+                    NextBatch.Data.Info.Lot = Batch.Data.Info.Lot + 1;
+                }
+                else if ((!(tboxBatchNextLotNo.Text.Length == 0)) && int.TryParse(tboxBatchNextLotNo.Text, out int new_value))
+                {
+                    NextBatch.Data.Info.Lot = new_value;
+                }
                 UpdateComponents();
                 SaveSettingsToFile(null, null, _form: true);
                 // Log success
                 AddLineToLogs($"Автоинкремент номера установлен: \"{(chboxBatchLotNoAutoINC.Checked ? "ВКЛ" : "ВЫКЛ")}\"", _outputlistbox: false);
             }
+            tboxBatchNextLotNo.Enabled = chboxBatchLotNoAutoINC.Checked ? false : true;
+            btn_tbBatchNextLotNoConfirm.Enabled = chboxBatchLotNoAutoINC.Checked ? false : true;
         }
 
         private void tboxBatchLotNo_KeyPress(object sender, KeyPressEventArgs e)
@@ -1025,17 +1185,18 @@ namespace Hitachi_IJP_Message_Manager
             {
                 if (chboxBatchDateAUTO.Checked)
                 {
-                    dtpickBatchNextDate.Enabled = false;
+                    NextBatch.Data.Info.StartDate = System.DateTime.Now;
                 }
-                else
+                else if (dtpickBatchNextDate.Value.Date <= System.DateTime.Now.Date)
                 {
-                    dtpickBatchNextDate.Enabled = true;
+                    NextBatch.Data.Info.StartDate = dtpickBatchNextDate.Value;
                 }
                 SaveSettingsToFile(null, null, _form: true);
                 UpdateComponents();
                 // Log success
                 AddLineToLogs($"Автоматическая дата установлена: \"{(chboxBatchDateAUTO.Checked ? "ВКЛ" : "ВЫКЛ")}\"", _outputlistbox: false);
             }
+            dtpickBatchNextDate.Enabled = chboxBatchDateAUTO.Checked ? false : true;
         }
 
         private void dtpickBatchDate_ValueChanged(object sender, EventArgs e)
@@ -1417,6 +1578,30 @@ namespace Hitachi_IJP_Message_Manager
         private void btnStopCalendarTimeResume_Click(object sender, EventArgs e)
         {
             Printer.SetClockResume(SetResume: true);
+        }
+
+        private void btn_cmboxAddCurrentBatchVolumeItem_VisibleChanged(object sender, EventArgs e)
+        {
+            if (btn_cmboxAddCurrentBatchVolumeItem.Visible)
+            {
+                btn_cmboxDeleteCurrentBatchVolumeItem.Visible = false;
+            }
+            else
+            {
+                btn_cmboxDeleteCurrentBatchVolumeItem.Visible = true;
+            }
+        }
+
+        private void btn_cmboxAddNextBatchVolumeItem_VisibleChanged(object sender, EventArgs e)
+        {
+            if (btn_cmboxAddNextBatchVolumeItem.Visible)
+            {
+                btn_cmboxDeleteNextBatchVolumeItem.Visible = false;
+            }
+            else
+            {
+                btn_cmboxDeleteNextBatchVolumeItem.Visible = true;
+            }
         }
     }
 
