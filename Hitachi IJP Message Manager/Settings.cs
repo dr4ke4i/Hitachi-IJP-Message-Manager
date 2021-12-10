@@ -33,10 +33,32 @@ namespace Hitachi_IJP_Message_Manager
         #endregion
 
         #region Settings Structure
+        
+        private enum Index {
+            PrinterIPAddress,
+            PrinterPort,
+            CurrentBatchStartCounter,
+            CurrentBatchLastKnownCounter,
+            CurrentBatchMaintBags,
+            CurrentBatchBrokenBags,
+            CurrentBatchVolume,
+            CurrentBatchStartDate,
+            CurrentBatchLot,
+            NextBatchStartCounter,
+            NextBatchLastKnownCounter,
+            NextBatchMaintBags,
+            NextBatchBrokenBags,
+            NextBatchVolume,
+            NextBatchStartDate,
+            NextBatchLot,
+            BatchPossibleVolumeList,
+            FormConnectOnLaunch,
+            FormAutoDate,
+            FormAutoLot
+        };
 
-        private enum Index { IPAddress, Port, /*WorkingMessageNo,*/ StartCounter, MaintBags, BrokenBags,
-            Volume, StartDate, Lot, PossibleVolume, ConnectOnLaunch, AutoDate, AutoLot };
         private sett_entry[] Settings = new sett_entry[Enum.GetValues(typeof(Index)).Length];
+
         private struct sett_entry
         {
             public string name;
@@ -49,19 +71,29 @@ namespace Hitachi_IJP_Message_Manager
         private void FillSettingsArray()
         {
             IPAddress.TryParse("192.168.0.1", out IPAddress ipaddr);
-            Settings[(int)Index.IPAddress].Init         ("IP_Address",       ipaddr.ToString(),      's');
-            Settings[(int)Index.Port].Init              ("Port",             502,                    'i');
-            //Settings[(int)Index.WorkingMessageNo].Init  ("WorkingMessageNo", 1,                      'i');
-            Settings[(int)Index.StartCounter].Init      ("Start_Counter",   -1,                      'i');
-            Settings[(int)Index.MaintBags].Init         ("Maintenance_Bags", 0,                      'i');
-            Settings[(int)Index.BrokenBags].Init        ("Broken_Bags",      0,                      'i');
-            Settings[(int)Index.Volume].Init            ("Batch_Volume",     1600,                   'i');
-            Settings[(int)Index.StartDate].Init         ("Batch_Start_Date", default(DateTime),      'd');
-            Settings[(int)Index.Lot].Init               ("Lot_Number",       666,                    'i');
-            Settings[(int)Index.PossibleVolume].Init    ("PossibleVolume",   new List<int> { 1600 }, 'l');
-            Settings[(int)Index.ConnectOnLaunch].Init   ("ConnectOnLaunch",  false,                  'b');
-            Settings[(int)Index.AutoDate].Init          ("AutoDate",         true,                   'b');
-            Settings[(int)Index.AutoLot].Init           ("AutoLot",          true,                   'b');
+            Settings[(int)Index.PrinterIPAddress].Init              ("PrinterIPAddress",                ipaddr.ToString(),      's');
+            Settings[(int)Index.PrinterPort].Init                   ("PrinterPort",                     502,                    'i');
+
+            Settings[(int)Index.CurrentBatchStartCounter].Init      ("CurrentBatchStartCounter",        -1,                     'i');
+            Settings[(int)Index.CurrentBatchLastKnownCounter].Init  ("CurrentBatchLastKnownCounter",    -1,                     'i');
+            Settings[(int)Index.CurrentBatchMaintBags].Init         ("CurrentBatchMaintBags",           0,                      'i');
+            Settings[(int)Index.CurrentBatchBrokenBags].Init        ("CurrentBatchBrokenBags",          0,                      'i');
+            Settings[(int)Index.CurrentBatchVolume].Init            ("CurrentBatchVolume",              1600,                   'i');
+            Settings[(int)Index.CurrentBatchStartDate].Init         ("CurrentBatchStartDate",           default(DateTime),      'd');
+            Settings[(int)Index.CurrentBatchLot].Init               ("CurrentBatchLot",                 666,                    'i');
+            
+            Settings[(int)Index.NextBatchStartCounter].Init         ("NextBatchStartCounter",           -1,                     'i');
+            Settings[(int)Index.NextBatchLastKnownCounter].Init     ("NextBatchLastKnownCounter",       -1,                     'i');
+            Settings[(int)Index.NextBatchMaintBags].Init            ("NextBatchMaintBags",              0,                      'i');
+            Settings[(int)Index.NextBatchBrokenBags].Init           ("NextBatchBrokenBags",             0,                      'i');
+            Settings[(int)Index.NextBatchVolume].Init               ("NextBatchVolume",                 1600,                   'i');
+            Settings[(int)Index.NextBatchStartDate].Init            ("NextBatchStartDate",              default(DateTime),      'd');
+            Settings[(int)Index.NextBatchLot].Init                  ("NextBatchLot",                    666,                    'i');
+
+            Settings[(int)Index.BatchPossibleVolumeList].Init       ("BatchPossibleVolumeItem",         new List<int> { 1600 }, 'l');
+            Settings[(int)Index.FormConnectOnLaunch].Init           ("FormConnectOnLaunch",             false,                  'b');
+            Settings[(int)Index.FormAutoDate].Init                  ("FormAutoDate",                    true,                   'b');
+            Settings[(int)Index.FormAutoLot].Init                   ("FormAutoLot",                     true,                   'b');
         }
 
         #endregion
@@ -69,119 +101,110 @@ namespace Hitachi_IJP_Message_Manager
         #region Properties
 
         public string IPAddr
+        { get { return (string)Getter(Index.PrinterIPAddress); } set { Setter(Index.PrinterIPAddress, value); } }
+
+        public int Port
+        { get { return (int)Getter(Index.PrinterPort); } set { Setter(Index.PrinterPort, value); } }
+
+        public int CurrentBatchStartCounter
+        { get { return (int)Getter(Index.CurrentBatchStartCounter); } set { Setter(Index.CurrentBatchStartCounter, value); } }
+
+        public int CurrentBatchLastKnownCounter
+        { get { return (int)Getter(Index.CurrentBatchLastKnownCounter); } set { Setter(Index.CurrentBatchLastKnownCounter, value); } }
+
+        public int CurrentBatchMaintBags
+        { get { return (int)Getter(Index.CurrentBatchMaintBags); } set { Setter(Index.CurrentBatchMaintBags, value); } }
+
+        public int CurrentBatchBrokenBags
+        { get { return (int)Getter(Index.CurrentBatchBrokenBags); } set { Setter(Index.CurrentBatchBrokenBags, value); } }
+
+        public int CurrentBatchVolume
+        { get { return (int)Getter(Index.CurrentBatchVolume); } set { Setter(Index.CurrentBatchVolume, value); } }
+
+        public DateTime CurrentBatchStartDate
+        { get { return (DateTime)Getter(Index.CurrentBatchStartDate); } set { Setter(Index.CurrentBatchStartDate, value); } }
+
+        public string   CurrentBatchStartDateStr
         {
-            get { return (string)Getter(Index.IPAddress); }
-            set { Setter(Index.IPAddress, value); }
+            get { return ((DateTime)Getter(Index.CurrentBatchStartDate)).Date.ToString("dd.MM.yy"); }
+            set {
+                    if (DateTime.TryParse(value, out DateTime datetime))
+                        Setter(Index.CurrentBatchStartDate, datetime);
+                    else
+                        lasterror = Error.ValueParseError;
+                }
         }
 
-        public string PortStr
+        public int CurrentBatchLot
+        { get { return (int)Getter(Index.CurrentBatchLot); } set { Setter(Index.CurrentBatchLot, value); } }
+
+        public string CurrentBatchLotStr
         {
-            get { return Convert.ToString((int)Getter(Index.Port));            }
-            set
-            {
-                if (int.TryParse(value, out int port))
-                    Setter(Index.Port, port);
-                else
-                    lasterror = Error.ValueParseError;
-            }
+            get { return Convert.ToString((int)Getter(Index.CurrentBatchLot)); }
+            set {
+                    if (int.TryParse(value, out int lot))
+                        Setter(Index.CurrentBatchLot, lot);
+                    else
+                        lasterror = Error.ValueParseError;
+                }
         }
 
-        public int    PortInt
-        {
-            get { return (int)Getter(Index.Port); }
-            set { Setter(Index.Port, value); }
-        }
+        public int NextBatchStartCounter
+        { get { return (int)Getter(Index.NextBatchStartCounter); } set { Setter(Index.NextBatchStartCounter, value); } }
 
-        /*public int    WorkingMessageNo
-        {
-            get { return (int)Getter(Index.WorkingMessageNo); }
-            set { Setter(Index.WorkingMessageNo, value); }
-        }
-        */
+        public int NextBatchLastKnownCounter
+        { get { return (int)Getter(Index.NextBatchLastKnownCounter); } set { Setter(Index.NextBatchLastKnownCounter, value); } }
 
-        public int    StartCounter
-        {
-            get { return (int)Getter(Index.StartCounter); }
-            set { Setter(Index.StartCounter, value); }
-        }
+        public int NextBatchMaintBags
+        { get { return (int)Getter(Index.NextBatchMaintBags); } set { Setter(Index.NextBatchMaintBags, value); } }
 
-        public int    MaintBags
-        {
-            get { return (int)Getter(Index.MaintBags); }
-            set { Setter(Index.MaintBags, value); }
-        }
+        public int NextBatchBrokenBags
+        { get { return (int)Getter(Index.NextBatchBrokenBags); } set { Setter(Index.NextBatchBrokenBags, value); } }
 
-        public int    BrokenBags
-        {
-            get { return (int)Getter(Index.BrokenBags); }
-            set { Setter(Index.BrokenBags, value); }
-        }
+        public int NextBatchVolume
+        { get { return (int)Getter(Index.NextBatchVolume); } set { Setter(Index.NextBatchVolume, value); } }
 
-        public int    Volume
-        {
-            get { return (int)Getter(Index.Volume); }
-            set { Setter(Index.Volume, value); }
-        }
+        public DateTime NextBatchStartDate
+        { get { return (DateTime)Getter(Index.NextBatchStartDate); } set { Setter(Index.NextBatchStartDate, value); } }
 
-        public DateTime StartDate
+        public string NextBatchStartDateStr
         {
-            get { return (DateTime)Getter(Index.StartDate); }
-            set { Setter(Index.StartDate, value); }
-        }
-
-        public string   StartDateStr
-        {
-            get { return ((DateTime)Getter(Index.StartDate)).Date.ToString("dd.MM.yy"); }
+            get { return ((DateTime)Getter(Index.NextBatchStartDate)).Date.ToString("dd.MM.yy"); }
             set
             {
                 if (DateTime.TryParse(value, out DateTime datetime))
-                    Setter(Index.StartDate, datetime);
+                    Setter(Index.NextBatchStartDate, datetime);
                 else
                     lasterror = Error.ValueParseError;
             }
         }
 
-        public string LotStr
+        public int NextBatchLot
+        { get { return (int)Getter(Index.NextBatchLot); } set { Setter(Index.NextBatchLot, value); } }
+
+        public string NextBatchLotStr
         {
-            get { return Convert.ToString((int)Getter(Index.Lot)); }
+            get { return Convert.ToString((int)Getter(Index.NextBatchLot)); }
             set
             {
                 if (int.TryParse(value, out int lot))
-                    Setter(Index.Lot, lot);
+                    Setter(Index.NextBatchLot, lot);
                 else
                     lasterror = Error.ValueParseError;
             }
         }
 
-        public int    LotInt
-        {
-            get { return (int)Getter(Index.Lot); }
-            set { Setter(Index.Lot, value); }
-        }
-
         public List<int> PossibleVolumeList
-        {
-            get { return (List<int>)Getter(Index.PossibleVolume); }
-            set { Setter(Index.PossibleVolume, value); }
-        }
+        { get { return (List<int>)Getter(Index.BatchPossibleVolumeList); } set { Setter(Index.BatchPossibleVolumeList, value); } }
 
-        public bool   ConnectOnLaunch
-        {
-            get { return (bool)Getter(Index.ConnectOnLaunch); }
-            set { Setter(Index.ConnectOnLaunch, value); }
-        }
+        public bool FormConnectOnLaunch
+        { get { return (bool)Getter(Index.FormConnectOnLaunch); } set { Setter(Index.FormConnectOnLaunch, value); } }
 
-        public bool   AutoDate
-        {
-            get { return (bool)Getter(Index.AutoDate); }
-            set { Setter(Index.AutoDate, value); }
-        }
+        public bool FormAutoDate
+        { get { return (bool)Getter(Index.FormAutoDate); } set { Setter(Index.FormAutoDate, value); } }
 
-        public bool   AutoLot
-        {
-            get { return (bool)Getter(Index.AutoLot); }
-            set { Setter(Index.AutoLot, value); }
-        }
+        public bool FormAutoLot
+        { get { return (bool)Getter(Index.FormAutoLot); } set { Setter(Index.FormAutoLot, value); } }
 
         #endregion
 
@@ -209,7 +232,7 @@ namespace Hitachi_IJP_Message_Manager
 
         #region Private Methods
 
-        private void SaveSettingsToFile()
+        public void SaveSettingsToFile()
         {
             System.IO.StreamWriter writefile = null;
             try
@@ -217,20 +240,20 @@ namespace Hitachi_IJP_Message_Manager
                 writefile = new StreamWriter(filepath);
                 foreach (int i in Enum.GetValues(typeof(Index)))
                 {
-                    if (Settings[i].type=='l')
+                    if (Settings[i].type == 'l')        // List<int> conversion
                     {
                         List<int> temp_listint = (List<int>)Settings[i].value;
-                        foreach(int value in temp_listint)
+                        foreach (int value in temp_listint)
                         {
-                            writefile.WriteLine( Settings[i].name + "=" + value.ToString() );
+                            writefile.WriteLine(Settings[i].name + "=" + value.ToString());
                         }
                     }
-                    else if (Settings[i].type=='d')
+                    else if (Settings[i].type == 'd')   // DateTime conversion
                     {
                         DateTime temp_dt = (DateTime)Settings[i].value;
                         writefile.WriteLine(Settings[i].name + "=" + temp_dt.Date.ToString("dd.MM.yy"));
                     }
-                    else
+                    else                                // other types use .ToString() method
                         writefile.WriteLine( Settings[i].name + "=" + Convert.ToString( Settings[i].value) );
                 }
             }
@@ -287,7 +310,8 @@ namespace Hitachi_IJP_Message_Manager
                                             if (!temp_listint.Contains(output_listint_element))
                                             {
                                                 temp_listint.Add(output_listint_element);
-                                            }                                            
+                                            }
+                                            temp_listint.Sort();
                                             Settings[i].value = temp_listint;
                                         }
                                         break;
@@ -311,13 +335,14 @@ namespace Hitachi_IJP_Message_Manager
             }
         }
 
+        // TODO Simplify: remove 'if (Settings[i].value != _value) ...'
         private void Setter(Index _index, object _value)
         {
-            int i = (int)Enum.GetValues(typeof(Index)).GetValue((int)_index);
+            int i = (int)_index;
             switch (Settings[i].type)
             {
-                case 's':
-                    if (i == (int)Index.IPAddress)
+                case 's':  // String conversion
+                    if (i == (int)Index.PrinterIPAddress)
                     {
                         if (System.Net.IPAddress.TryParse(Convert.ToString(_value), out System.Net.IPAddress ipaddr))
                         {
@@ -325,7 +350,7 @@ namespace Hitachi_IJP_Message_Manager
                             if (Convert.ToString(Settings[i].value) != ipaddr.ToString())
                             {
                                 Settings[i].value = ipaddr.ToString();
-                                SaveSettingsToFile();
+                                // SaveSettingsToFile();
                             }
                         }
                         else
@@ -337,40 +362,40 @@ namespace Hitachi_IJP_Message_Manager
                         if ((string)Settings[i].value != (string)_value)
                         {
                             Settings[i].value = _value;
-                            SaveSettingsToFile();
+                            // SaveSettingsToFile();
                         }
                     }
                     break;
-                case 'i':
+                case 'i':   // Int conversion
                     lasterror = Error.OK;
                     if ((int)Settings[i].value != (int)_value)
                     {
                         Settings[i].value = _value;
-                        SaveSettingsToFile();
+                        // SaveSettingsToFile();
                     }
                     break;
-                case 'b':
+                case 'b':   // Bool conversion
                     lasterror = Error.OK;
                     if ((bool)Settings[i].value != (bool)_value)
                     {
                         Settings[i].value = _value;
-                        SaveSettingsToFile();
+                        // SaveSettingsToFile();
                     }
                     break;
-                case 'd':
+                case 'd':   // DateTime conversion
                     lasterror = Error.OK;
                     if ((DateTime)Settings[i].value != (DateTime)_value)
                     {
                         Settings[i].value = _value;
-                        SaveSettingsToFile();
+                        // SaveSettingsToFile();
                     }
                     break;
-                case 'l':
+                case 'l':   // List<int> conversion
                     lasterror = Error.OK;
                     if ((List<int>)Settings[i].value != (List<int>)_value)
                     {
                         Settings[i].value = _value;
-                        SaveSettingsToFile();
+                        // SaveSettingsToFile();
                     }
                     break;
             }
@@ -378,7 +403,7 @@ namespace Hitachi_IJP_Message_Manager
 
         private object Getter(Index _index)
         {
-            return Settings[(int)Enum.GetValues(typeof(Index)).GetValue((int)_index)].value;
+            return Settings[(int)_index].value;
         }
 
     }

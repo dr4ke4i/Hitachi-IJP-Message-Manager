@@ -112,27 +112,29 @@ namespace Hitachi_IJP_Message_Manager
             this.btn_cmboxAddCurrentBatchVolumeItem = new System.Windows.Forms.Button();
             this.btn_cmboxDeleteCurrentBatchVolumeItem = new System.Windows.Forms.Button();
             this.grpBoxCurrentBatch = new System.Windows.Forms.GroupBox();
+            this.btn_CurrentBatchClear = new System.Windows.Forms.Button();
+            this.lblMaintBagsCurrB = new System.Windows.Forms.Label();
+            this.lblBrokenBagsCurrB = new System.Windows.Forms.Label();
+            this.lblMarkedBagsCurrB = new System.Windows.Forms.Label();
+            this.lblVolumeCurrB = new System.Windows.Forms.Label();
+            this.label17 = new System.Windows.Forms.Label();
+            this.label26 = new System.Windows.Forms.Label();
+            this.label29 = new System.Windows.Forms.Label();
             this.grpBoxNextBatch = new System.Windows.Forms.GroupBox();
+            this.lblMaintBagsNextB = new System.Windows.Forms.Label();
+            this.lblBrokenBagsNextB = new System.Windows.Forms.Label();
+            this.btn_NextBatchClear = new System.Windows.Forms.Button();
             this.btn_cmboxDeleteNextBatchVolumeItem = new System.Windows.Forms.Button();
             this.cmboxNextBatchVolume = new System.Windows.Forms.ComboBox();
             this.btn_cmboxAddNextBatchVolumeItem = new System.Windows.Forms.Button();
+            this.label27 = new System.Windows.Forms.Label();
+            this.lblVolumeNextB = new System.Windows.Forms.Label();
+            this.label33 = new System.Windows.Forms.Label();
+            this.lblMarkedBagsNextB = new System.Windows.Forms.Label();
+            this.label31 = new System.Windows.Forms.Label();
             this.btn_SwapBatchCurrentNext = new System.Windows.Forms.Button();
             this.label10 = new System.Windows.Forms.Label();
-            this.lblMarkedBagsCurrB = new System.Windows.Forms.Label();
-            this.label17 = new System.Windows.Forms.Label();
-            this.lblVolumeCurrB = new System.Windows.Forms.Label();
-            this.lblMarkedBagsNextB = new System.Windows.Forms.Label();
-            this.lblVolumeNextB = new System.Windows.Forms.Label();
-            this.label27 = new System.Windows.Forms.Label();
             this.label14 = new System.Windows.Forms.Label();
-            this.label26 = new System.Windows.Forms.Label();
-            this.lblBrokenBagsCurrB = new System.Windows.Forms.Label();
-            this.lblMaintBagsCurrB = new System.Windows.Forms.Label();
-            this.label29 = new System.Windows.Forms.Label();
-            this.lblBrokenBagsNextB = new System.Windows.Forms.Label();
-            this.label31 = new System.Windows.Forms.Label();
-            this.lblMaintBagsNextB = new System.Windows.Forms.Label();
-            this.label33 = new System.Windows.Forms.Label();
             this.cmstrip_lbLog.SuspendLayout();
             this.grpBoxCurrentBatch.SuspendLayout();
             this.grpBoxNextBatch.SuspendLayout();
@@ -250,7 +252,7 @@ namespace Hitachi_IJP_Message_Manager
             // label4
             // 
             this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(12, 298);
+            this.label4.Location = new System.Drawing.Point(12, 335);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(108, 17);
             this.label4.TabIndex = 4;
@@ -259,7 +261,7 @@ namespace Hitachi_IJP_Message_Manager
             // cmboxCurrentBatchVolume
             // 
             this.cmboxCurrentBatchVolume.FormattingEnabled = true;
-            this.cmboxCurrentBatchVolume.Location = new System.Drawing.Point(26, 124);
+            this.cmboxCurrentBatchVolume.Location = new System.Drawing.Point(13, 162);
             this.cmboxCurrentBatchVolume.Name = "cmboxCurrentBatchVolume";
             this.cmboxCurrentBatchVolume.Size = new System.Drawing.Size(121, 24);
             this.cmboxCurrentBatchVolume.TabIndex = 6;
@@ -393,16 +395,17 @@ namespace Hitachi_IJP_Message_Manager
             // lblBatchLotNo
             // 
             this.lblBatchLotNo.AutoSize = true;
-            this.lblBatchLotNo.Location = new System.Drawing.Point(23, 41);
+            this.lblBatchLotNo.Font = new System.Drawing.Font("Microsoft Sans Serif", 7.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.lblBatchLotNo.Location = new System.Drawing.Point(10, 42);
             this.lblBatchLotNo.Name = "lblBatchLotNo";
-            this.lblBatchLotNo.Size = new System.Drawing.Size(96, 17);
+            this.lblBatchLotNo.Size = new System.Drawing.Size(109, 17);
             this.lblBatchLotNo.TabIndex = 5;
             this.lblBatchLotNo.Text = "lblBatchLotNo";
             // 
             // btn_tbBatchLotNoConfirm
             // 
             this.btn_tbBatchLotNoConfirm.AutoSize = true;
-            this.btn_tbBatchLotNoConfirm.Location = new System.Drawing.Point(206, 36);
+            this.btn_tbBatchLotNoConfirm.Location = new System.Drawing.Point(206, 37);
             this.btn_tbBatchLotNoConfirm.Name = "btn_tbBatchLotNoConfirm";
             this.btn_tbBatchLotNoConfirm.Size = new System.Drawing.Size(38, 27);
             this.btn_tbBatchLotNoConfirm.TabIndex = 7;
@@ -412,9 +415,9 @@ namespace Hitachi_IJP_Message_Manager
             // 
             // tboxBatchLotNo
             // 
-            this.tboxBatchLotNo.Location = new System.Drawing.Point(138, 38);
+            this.tboxBatchLotNo.Location = new System.Drawing.Point(112, 39);
             this.tboxBatchLotNo.Name = "tboxBatchLotNo";
-            this.tboxBatchLotNo.Size = new System.Drawing.Size(62, 22);
+            this.tboxBatchLotNo.Size = new System.Drawing.Size(88, 22);
             this.tboxBatchLotNo.TabIndex = 8;
             this.tboxBatchLotNo.KeyDown += new System.Windows.Forms.KeyEventHandler(this.tboxBatchLotNo_KeyDown);
             this.tboxBatchLotNo.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.tboxBatchLotNo_KeyPress);
@@ -433,7 +436,8 @@ namespace Hitachi_IJP_Message_Manager
             // lblBatchNextLotNo
             // 
             this.lblBatchNextLotNo.AutoSize = true;
-            this.lblBatchNextLotNo.Location = new System.Drawing.Point(23, 41);
+            this.lblBatchNextLotNo.Font = new System.Drawing.Font("Microsoft Sans Serif", 7.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.lblBatchNextLotNo.Location = new System.Drawing.Point(10, 42);
             this.lblBatchNextLotNo.Name = "lblBatchNextLotNo";
             this.lblBatchNextLotNo.Size = new System.Drawing.Size(124, 17);
             this.lblBatchNextLotNo.TabIndex = 5;
@@ -442,7 +446,7 @@ namespace Hitachi_IJP_Message_Manager
             // chboxBatchDateAUTO
             // 
             this.chboxBatchDateAUTO.AutoSize = true;
-            this.chboxBatchDateAUTO.Location = new System.Drawing.Point(139, 355);
+            this.chboxBatchDateAUTO.Location = new System.Drawing.Point(139, 385);
             this.chboxBatchDateAUTO.Name = "chboxBatchDateAUTO";
             this.chboxBatchDateAUTO.Size = new System.Drawing.Size(61, 21);
             this.chboxBatchDateAUTO.TabIndex = 10;
@@ -452,26 +456,26 @@ namespace Hitachi_IJP_Message_Manager
             // 
             // lblBatchDate
             // 
-            this.lblBatchDate.AutoSize = true;
-            this.lblBatchDate.Location = new System.Drawing.Point(23, 185);
+            this.lblBatchDate.Font = new System.Drawing.Font("Microsoft Sans Serif", 7.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.lblBatchDate.Location = new System.Drawing.Point(10, 216);
             this.lblBatchDate.Name = "lblBatchDate";
-            this.lblBatchDate.Size = new System.Drawing.Size(88, 17);
+            this.lblBatchDate.Size = new System.Drawing.Size(81, 17);
             this.lblBatchDate.TabIndex = 5;
             this.lblBatchDate.Text = "lblBatchDate";
             // 
             // lblBatchNextDate
             // 
-            this.lblBatchNextDate.AutoSize = true;
-            this.lblBatchNextDate.Location = new System.Drawing.Point(23, 185);
+            this.lblBatchNextDate.Font = new System.Drawing.Font("Microsoft Sans Serif", 7.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.lblBatchNextDate.Location = new System.Drawing.Point(10, 215);
             this.lblBatchNextDate.Name = "lblBatchNextDate";
-            this.lblBatchNextDate.Size = new System.Drawing.Size(116, 17);
+            this.lblBatchNextDate.Size = new System.Drawing.Size(81, 17);
             this.lblBatchNextDate.TabIndex = 5;
             this.lblBatchNextDate.Text = "lblBatchNextDate";
             // 
             // label13
             // 
             this.label13.AutoSize = true;
-            this.label13.Location = new System.Drawing.Point(12, 356);
+            this.label13.Location = new System.Drawing.Point(12, 386);
             this.label13.Name = "label13";
             this.label13.Size = new System.Drawing.Size(97, 17);
             this.label13.TabIndex = 9;
@@ -480,9 +484,9 @@ namespace Hitachi_IJP_Message_Manager
             // dtpickBatchDate
             // 
             this.dtpickBatchDate.CustomFormat = "HH:mm:ss dd.MM.yyyy";
-            this.dtpickBatchDate.Location = new System.Drawing.Point(26, 213);
+            this.dtpickBatchDate.Location = new System.Drawing.Point(97, 214);
             this.dtpickBatchDate.Name = "dtpickBatchDate";
-            this.dtpickBatchDate.Size = new System.Drawing.Size(190, 22);
+            this.dtpickBatchDate.Size = new System.Drawing.Size(147, 22);
             this.dtpickBatchDate.TabIndex = 12;
             this.dtpickBatchDate.ValueChanged += new System.EventHandler(this.dtpickBatchDate_ValueChanged);
             // 
@@ -682,9 +686,9 @@ namespace Hitachi_IJP_Message_Manager
             // 
             // tboxBatchNextLotNo
             // 
-            this.tboxBatchNextLotNo.Location = new System.Drawing.Point(138, 39);
+            this.tboxBatchNextLotNo.Location = new System.Drawing.Point(112, 39);
             this.tboxBatchNextLotNo.Name = "tboxBatchNextLotNo";
-            this.tboxBatchNextLotNo.Size = new System.Drawing.Size(62, 22);
+            this.tboxBatchNextLotNo.Size = new System.Drawing.Size(88, 22);
             this.tboxBatchNextLotNo.TabIndex = 8;
             this.tboxBatchNextLotNo.KeyDown += new System.Windows.Forms.KeyEventHandler(this.tboxBatchNextLotNo_KeyDown);
             this.tboxBatchNextLotNo.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.tboxBatchNextLotNo_KeyPress);
@@ -692,7 +696,7 @@ namespace Hitachi_IJP_Message_Manager
             // btn_tbBatchNextLotNoConfirm
             // 
             this.btn_tbBatchNextLotNoConfirm.AutoSize = true;
-            this.btn_tbBatchNextLotNoConfirm.Location = new System.Drawing.Point(206, 36);
+            this.btn_tbBatchNextLotNoConfirm.Location = new System.Drawing.Point(206, 37);
             this.btn_tbBatchNextLotNoConfirm.Name = "btn_tbBatchNextLotNoConfirm";
             this.btn_tbBatchNextLotNoConfirm.Size = new System.Drawing.Size(38, 27);
             this.btn_tbBatchNextLotNoConfirm.TabIndex = 7;
@@ -703,9 +707,9 @@ namespace Hitachi_IJP_Message_Manager
             // dtpickBatchNextDate
             // 
             this.dtpickBatchNextDate.CustomFormat = "HH:mm:ss dd.MM.yyyy";
-            this.dtpickBatchNextDate.Location = new System.Drawing.Point(26, 213);
+            this.dtpickBatchNextDate.Location = new System.Drawing.Point(97, 214);
             this.dtpickBatchNextDate.Name = "dtpickBatchNextDate";
-            this.dtpickBatchNextDate.Size = new System.Drawing.Size(190, 22);
+            this.dtpickBatchNextDate.Size = new System.Drawing.Size(147, 22);
             this.dtpickBatchNextDate.TabIndex = 12;
             this.dtpickBatchNextDate.ValueChanged += new System.EventHandler(this.dtpickBatchNextDate_ValueChanged);
             // 
@@ -877,7 +881,7 @@ namespace Hitachi_IJP_Message_Manager
             // btn_cmboxAddCurrentBatchVolumeItem
             // 
             this.btn_cmboxAddCurrentBatchVolumeItem.AutoSize = true;
-            this.btn_cmboxAddCurrentBatchVolumeItem.Location = new System.Drawing.Point(154, 122);
+            this.btn_cmboxAddCurrentBatchVolumeItem.Location = new System.Drawing.Point(153, 160);
             this.btn_cmboxAddCurrentBatchVolumeItem.Name = "btn_cmboxAddCurrentBatchVolumeItem";
             this.btn_cmboxAddCurrentBatchVolumeItem.Size = new System.Drawing.Size(82, 27);
             this.btn_cmboxAddCurrentBatchVolumeItem.TabIndex = 7;
@@ -890,7 +894,7 @@ namespace Hitachi_IJP_Message_Manager
             // btn_cmboxDeleteCurrentBatchVolumeItem
             // 
             this.btn_cmboxDeleteCurrentBatchVolumeItem.AutoSize = true;
-            this.btn_cmboxDeleteCurrentBatchVolumeItem.Location = new System.Drawing.Point(154, 122);
+            this.btn_cmboxDeleteCurrentBatchVolumeItem.Location = new System.Drawing.Point(153, 160);
             this.btn_cmboxDeleteCurrentBatchVolumeItem.Name = "btn_cmboxDeleteCurrentBatchVolumeItem";
             this.btn_cmboxDeleteCurrentBatchVolumeItem.Size = new System.Drawing.Size(73, 27);
             this.btn_cmboxDeleteCurrentBatchVolumeItem.TabIndex = 7;
@@ -900,6 +904,11 @@ namespace Hitachi_IJP_Message_Manager
             // 
             // grpBoxCurrentBatch
             // 
+            this.grpBoxCurrentBatch.Controls.Add(this.btn_CurrentBatchClear);
+            this.grpBoxCurrentBatch.Controls.Add(this.lblMaintBagsCurrB);
+            this.grpBoxCurrentBatch.Controls.Add(this.lblBrokenBagsCurrB);
+            this.grpBoxCurrentBatch.Controls.Add(this.lblMarkedBagsCurrB);
+            this.grpBoxCurrentBatch.Controls.Add(this.lblVolumeCurrB);
             this.grpBoxCurrentBatch.Controls.Add(this.tboxBatchLotNo);
             this.grpBoxCurrentBatch.Controls.Add(this.btn_cmboxDeleteCurrentBatchVolumeItem);
             this.grpBoxCurrentBatch.Controls.Add(this.lblBatchLotNo);
@@ -909,24 +918,91 @@ namespace Hitachi_IJP_Message_Manager
             this.grpBoxCurrentBatch.Controls.Add(this.btn_cmboxAddCurrentBatchVolumeItem);
             this.grpBoxCurrentBatch.Controls.Add(this.dtpickBatchDate);
             this.grpBoxCurrentBatch.Controls.Add(this.label17);
-            this.grpBoxCurrentBatch.Controls.Add(this.lblVolumeCurrB);
-            this.grpBoxCurrentBatch.Controls.Add(this.label29);
-            this.grpBoxCurrentBatch.Controls.Add(this.lblMaintBagsCurrB);
             this.grpBoxCurrentBatch.Controls.Add(this.label26);
-            this.grpBoxCurrentBatch.Controls.Add(this.lblBrokenBagsCurrB);
-            this.grpBoxCurrentBatch.Controls.Add(this.lblMarkedBagsCurrB);
-            this.grpBoxCurrentBatch.Location = new System.Drawing.Point(236, 171);
+            this.grpBoxCurrentBatch.Controls.Add(this.label29);
+            this.grpBoxCurrentBatch.Location = new System.Drawing.Point(216, 171);
             this.grpBoxCurrentBatch.Name = "grpBoxCurrentBatch";
-            this.grpBoxCurrentBatch.Size = new System.Drawing.Size(250, 250);
+            this.grpBoxCurrentBatch.Size = new System.Drawing.Size(258, 250);
             this.grpBoxCurrentBatch.TabIndex = 34;
             this.grpBoxCurrentBatch.TabStop = false;
             this.grpBoxCurrentBatch.Text = "Текущая партия";
             // 
+            // btn_CurrentBatchClear
+            // 
+            this.btn_CurrentBatchClear.Location = new System.Drawing.Point(153, 86);
+            this.btn_CurrentBatchClear.Name = "btn_CurrentBatchClear";
+            this.btn_CurrentBatchClear.Size = new System.Drawing.Size(91, 49);
+            this.btn_CurrentBatchClear.TabIndex = 13;
+            this.btn_CurrentBatchClear.Text = "Обнулить";
+            this.btn_CurrentBatchClear.UseVisualStyleBackColor = true;
+            this.btn_CurrentBatchClear.Click += new System.EventHandler(this.btn_CurrentBatchClear_Click);
+            // 
+            // lblMaintBagsCurrB
+            // 
+            this.lblMaintBagsCurrB.Location = new System.Drawing.Point(118, 116);
+            this.lblMaintBagsCurrB.Name = "lblMaintBagsCurrB";
+            this.lblMaintBagsCurrB.Size = new System.Drawing.Size(36, 17);
+            this.lblMaintBagsCurrB.TabIndex = 5;
+            this.lblMaintBagsCurrB.Text = "lblMaintBagsCurrB";
+            // 
+            // lblBrokenBagsCurrB
+            // 
+            this.lblBrokenBagsCurrB.Location = new System.Drawing.Point(64, 116);
+            this.lblBrokenBagsCurrB.Name = "lblBrokenBagsCurrB";
+            this.lblBrokenBagsCurrB.Size = new System.Drawing.Size(34, 17);
+            this.lblBrokenBagsCurrB.TabIndex = 5;
+            this.lblBrokenBagsCurrB.Text = "lblBrokenBagsCurrB";
+            // 
+            // lblMarkedBagsCurrB
+            // 
+            this.lblMarkedBagsCurrB.Location = new System.Drawing.Point(10, 86);
+            this.lblMarkedBagsCurrB.Name = "lblMarkedBagsCurrB";
+            this.lblMarkedBagsCurrB.Size = new System.Drawing.Size(50, 17);
+            this.lblMarkedBagsCurrB.TabIndex = 5;
+            this.lblMarkedBagsCurrB.Text = "lblMarkedBagsCurrB";
+            // 
+            // lblVolumeCurrB
+            // 
+            this.lblVolumeCurrB.Location = new System.Drawing.Point(70, 86);
+            this.lblVolumeCurrB.Name = "lblVolumeCurrB";
+            this.lblVolumeCurrB.Size = new System.Drawing.Size(64, 17);
+            this.lblVolumeCurrB.TabIndex = 5;
+            this.lblVolumeCurrB.Text = "lblVolumeCurrB";
+            // 
+            // label17
+            // 
+            this.label17.AutoSize = true;
+            this.label17.Location = new System.Drawing.Point(59, 86);
+            this.label17.Name = "label17";
+            this.label17.Size = new System.Drawing.Size(12, 17);
+            this.label17.TabIndex = 4;
+            this.label17.Text = "/";
+            // 
+            // label26
+            // 
+            this.label26.AutoSize = true;
+            this.label26.Location = new System.Drawing.Point(10, 116);
+            this.label26.Name = "label26";
+            this.label26.Size = new System.Drawing.Size(61, 17);
+            this.label26.TabIndex = 5;
+            this.label26.Text = "Испорч.";
+            // 
+            // label29
+            // 
+            this.label29.AutoSize = true;
+            this.label29.Location = new System.Drawing.Point(94, 116);
+            this.label29.Name = "label29";
+            this.label29.Size = new System.Drawing.Size(28, 17);
+            this.label29.TabIndex = 5;
+            this.label29.Text = "ТО";
+            // 
             // grpBoxNextBatch
             // 
+            this.grpBoxNextBatch.Controls.Add(this.lblMaintBagsNextB);
+            this.grpBoxNextBatch.Controls.Add(this.lblBrokenBagsNextB);
+            this.grpBoxNextBatch.Controls.Add(this.btn_NextBatchClear);
             this.grpBoxNextBatch.Controls.Add(this.tboxBatchNextLotNo);
             this.grpBoxNextBatch.Controls.Add(this.btn_cmboxDeleteNextBatchVolumeItem);
-            this.grpBoxNextBatch.Controls.Add(this.lblBatchNextLotNo);
             this.grpBoxNextBatch.Controls.Add(this.lblBatchNextDate);
             this.grpBoxNextBatch.Controls.Add(this.btn_tbBatchNextLotNoConfirm);
             this.grpBoxNextBatch.Controls.Add(this.cmboxNextBatchVolume);
@@ -936,20 +1012,44 @@ namespace Hitachi_IJP_Message_Manager
             this.grpBoxNextBatch.Controls.Add(this.lblVolumeNextB);
             this.grpBoxNextBatch.Controls.Add(this.label33);
             this.grpBoxNextBatch.Controls.Add(this.lblMarkedBagsNextB);
-            this.grpBoxNextBatch.Controls.Add(this.lblMaintBagsNextB);
             this.grpBoxNextBatch.Controls.Add(this.label31);
-            this.grpBoxNextBatch.Controls.Add(this.lblBrokenBagsNextB);
+            this.grpBoxNextBatch.Controls.Add(this.lblBatchNextLotNo);
             this.grpBoxNextBatch.Location = new System.Drawing.Point(574, 171);
             this.grpBoxNextBatch.Name = "grpBoxNextBatch";
-            this.grpBoxNextBatch.Size = new System.Drawing.Size(250, 250);
+            this.grpBoxNextBatch.Size = new System.Drawing.Size(258, 250);
             this.grpBoxNextBatch.TabIndex = 35;
             this.grpBoxNextBatch.TabStop = false;
             this.grpBoxNextBatch.Text = "Следующая партия";
             // 
+            // lblMaintBagsNextB
+            // 
+            this.lblMaintBagsNextB.Location = new System.Drawing.Point(118, 116);
+            this.lblMaintBagsNextB.Name = "lblMaintBagsNextB";
+            this.lblMaintBagsNextB.Size = new System.Drawing.Size(36, 17);
+            this.lblMaintBagsNextB.TabIndex = 5;
+            this.lblMaintBagsNextB.Text = "lblMaintBagsNextB";
+            // 
+            // lblBrokenBagsNextB
+            // 
+            this.lblBrokenBagsNextB.Location = new System.Drawing.Point(64, 116);
+            this.lblBrokenBagsNextB.Name = "lblBrokenBagsNextB";
+            this.lblBrokenBagsNextB.Size = new System.Drawing.Size(34, 17);
+            this.lblBrokenBagsNextB.TabIndex = 5;
+            this.lblBrokenBagsNextB.Text = "lblBrokenBagsNextB";
+            // 
+            // btn_NextBatchClear
+            // 
+            this.btn_NextBatchClear.Location = new System.Drawing.Point(153, 86);
+            this.btn_NextBatchClear.Name = "btn_NextBatchClear";
+            this.btn_NextBatchClear.Size = new System.Drawing.Size(91, 49);
+            this.btn_NextBatchClear.TabIndex = 13;
+            this.btn_NextBatchClear.Text = "Обнулить";
+            this.btn_NextBatchClear.UseVisualStyleBackColor = true;
+            // 
             // btn_cmboxDeleteNextBatchVolumeItem
             // 
             this.btn_cmboxDeleteNextBatchVolumeItem.AutoSize = true;
-            this.btn_cmboxDeleteNextBatchVolumeItem.Location = new System.Drawing.Point(153, 122);
+            this.btn_cmboxDeleteNextBatchVolumeItem.Location = new System.Drawing.Point(153, 160);
             this.btn_cmboxDeleteNextBatchVolumeItem.Name = "btn_cmboxDeleteNextBatchVolumeItem";
             this.btn_cmboxDeleteNextBatchVolumeItem.Size = new System.Drawing.Size(73, 27);
             this.btn_cmboxDeleteNextBatchVolumeItem.TabIndex = 7;
@@ -960,7 +1060,7 @@ namespace Hitachi_IJP_Message_Manager
             // cmboxNextBatchVolume
             // 
             this.cmboxNextBatchVolume.FormattingEnabled = true;
-            this.cmboxNextBatchVolume.Location = new System.Drawing.Point(26, 124);
+            this.cmboxNextBatchVolume.Location = new System.Drawing.Point(13, 162);
             this.cmboxNextBatchVolume.Name = "cmboxNextBatchVolume";
             this.cmboxNextBatchVolume.Size = new System.Drawing.Size(121, 24);
             this.cmboxNextBatchVolume.TabIndex = 6;
@@ -971,7 +1071,7 @@ namespace Hitachi_IJP_Message_Manager
             // btn_cmboxAddNextBatchVolumeItem
             // 
             this.btn_cmboxAddNextBatchVolumeItem.AutoSize = true;
-            this.btn_cmboxAddNextBatchVolumeItem.Location = new System.Drawing.Point(153, 122);
+            this.btn_cmboxAddNextBatchVolumeItem.Location = new System.Drawing.Point(153, 160);
             this.btn_cmboxAddNextBatchVolumeItem.Name = "btn_cmboxAddNextBatchVolumeItem";
             this.btn_cmboxAddNextBatchVolumeItem.Size = new System.Drawing.Size(82, 27);
             this.btn_cmboxAddNextBatchVolumeItem.TabIndex = 7;
@@ -981,10 +1081,53 @@ namespace Hitachi_IJP_Message_Manager
             this.btn_cmboxAddNextBatchVolumeItem.VisibleChanged += new System.EventHandler(this.btn_cmboxAddNextBatchVolumeItem_VisibleChanged);
             this.btn_cmboxAddNextBatchVolumeItem.Click += new System.EventHandler(this.btn_cmboxAddNextBatchVolumeItem_Click);
             // 
+            // label27
+            // 
+            this.label27.AutoSize = true;
+            this.label27.Location = new System.Drawing.Point(59, 86);
+            this.label27.Name = "label27";
+            this.label27.Size = new System.Drawing.Size(12, 17);
+            this.label27.TabIndex = 4;
+            this.label27.Text = "/";
+            // 
+            // lblVolumeNextB
+            // 
+            this.lblVolumeNextB.Location = new System.Drawing.Point(70, 86);
+            this.lblVolumeNextB.Name = "lblVolumeNextB";
+            this.lblVolumeNextB.Size = new System.Drawing.Size(64, 17);
+            this.lblVolumeNextB.TabIndex = 5;
+            this.lblVolumeNextB.Text = "lblVolumeNextB";
+            // 
+            // label33
+            // 
+            this.label33.AutoSize = true;
+            this.label33.Location = new System.Drawing.Point(94, 116);
+            this.label33.Name = "label33";
+            this.label33.Size = new System.Drawing.Size(28, 17);
+            this.label33.TabIndex = 5;
+            this.label33.Text = "ТО";
+            // 
+            // lblMarkedBagsNextB
+            // 
+            this.lblMarkedBagsNextB.Location = new System.Drawing.Point(10, 86);
+            this.lblMarkedBagsNextB.Name = "lblMarkedBagsNextB";
+            this.lblMarkedBagsNextB.Size = new System.Drawing.Size(50, 17);
+            this.lblMarkedBagsNextB.TabIndex = 5;
+            this.lblMarkedBagsNextB.Text = "lblMarkedBagsNextB";
+            // 
+            // label31
+            // 
+            this.label31.AutoSize = true;
+            this.label31.Location = new System.Drawing.Point(10, 116);
+            this.label31.Name = "label31";
+            this.label31.Size = new System.Drawing.Size(61, 17);
+            this.label31.TabIndex = 5;
+            this.label31.Text = "Испорч.";
+            // 
             // btn_SwapBatchCurrentNext
             // 
             this.btn_SwapBatchCurrentNext.AutoSize = true;
-            this.btn_SwapBatchCurrentNext.Location = new System.Drawing.Point(487, 269);
+            this.btn_SwapBatchCurrentNext.Location = new System.Drawing.Point(480, 267);
             this.btn_SwapBatchCurrentNext.Name = "btn_SwapBatchCurrentNext";
             this.btn_SwapBatchCurrentNext.Size = new System.Drawing.Size(84, 61);
             this.btn_SwapBatchCurrentNext.TabIndex = 36;
@@ -994,138 +1137,20 @@ namespace Hitachi_IJP_Message_Manager
             // label10
             // 
             this.label10.AutoSize = true;
-            this.label10.Location = new System.Drawing.Point(12, 239);
+            this.label10.Location = new System.Drawing.Point(12, 256);
             this.label10.Name = "label10";
             this.label10.Size = new System.Drawing.Size(101, 17);
             this.label10.TabIndex = 9;
             this.label10.Text = "Маркировано:";
             // 
-            // lblMarkedBagsCurrB
-            // 
-            this.lblMarkedBagsCurrB.Location = new System.Drawing.Point(23, 68);
-            this.lblMarkedBagsCurrB.Name = "lblMarkedBagsCurrB";
-            this.lblMarkedBagsCurrB.Size = new System.Drawing.Size(84, 17);
-            this.lblMarkedBagsCurrB.TabIndex = 5;
-            this.lblMarkedBagsCurrB.Text = "lblMarkedBagsCurrB";
-            // 
-            // label17
-            // 
-            this.label17.AutoSize = true;
-            this.label17.Location = new System.Drawing.Point(113, 68);
-            this.label17.Name = "label17";
-            this.label17.Size = new System.Drawing.Size(12, 17);
-            this.label17.TabIndex = 4;
-            this.label17.Text = "/";
-            // 
-            // lblVolumeCurrB
-            // 
-            this.lblVolumeCurrB.Location = new System.Drawing.Point(131, 68);
-            this.lblVolumeCurrB.Name = "lblVolumeCurrB";
-            this.lblVolumeCurrB.Size = new System.Drawing.Size(69, 17);
-            this.lblVolumeCurrB.TabIndex = 5;
-            this.lblVolumeCurrB.Text = "lblVolumeCurrB";
-            // 
-            // lblMarkedBagsNextB
-            // 
-            this.lblMarkedBagsNextB.Location = new System.Drawing.Point(23, 68);
-            this.lblMarkedBagsNextB.Name = "lblMarkedBagsNextB";
-            this.lblMarkedBagsNextB.Size = new System.Drawing.Size(84, 17);
-            this.lblMarkedBagsNextB.TabIndex = 5;
-            this.lblMarkedBagsNextB.Text = "lblMarkedBagsNextB";
-            // 
-            // lblVolumeNextB
-            // 
-            this.lblVolumeNextB.Location = new System.Drawing.Point(131, 68);
-            this.lblVolumeNextB.Name = "lblVolumeNextB";
-            this.lblVolumeNextB.Size = new System.Drawing.Size(69, 17);
-            this.lblVolumeNextB.TabIndex = 5;
-            this.lblVolumeNextB.Text = "lblVolumeNextB";
-            // 
-            // label27
-            // 
-            this.label27.AutoSize = true;
-            this.label27.Location = new System.Drawing.Point(113, 68);
-            this.label27.Name = "label27";
-            this.label27.Size = new System.Drawing.Size(12, 17);
-            this.label27.TabIndex = 4;
-            this.label27.Text = "/";
-            // 
             // label14
             // 
             this.label14.AutoSize = true;
-            this.label14.Location = new System.Drawing.Point(12, 269);
+            this.label14.Location = new System.Drawing.Point(12, 286);
             this.label14.Name = "label14";
             this.label14.Size = new System.Drawing.Size(86, 17);
             this.label14.TabIndex = 9;
             this.label14.Text = "Исключено:";
-            // 
-            // label26
-            // 
-            this.label26.AutoSize = true;
-            this.label26.Location = new System.Drawing.Point(23, 98);
-            this.label26.Name = "label26";
-            this.label26.Size = new System.Drawing.Size(61, 17);
-            this.label26.TabIndex = 5;
-            this.label26.Text = "Испорч.";
-            // 
-            // lblBrokenBagsCurrB
-            // 
-            this.lblBrokenBagsCurrB.Location = new System.Drawing.Point(90, 98);
-            this.lblBrokenBagsCurrB.Name = "lblBrokenBagsCurrB";
-            this.lblBrokenBagsCurrB.Size = new System.Drawing.Size(45, 17);
-            this.lblBrokenBagsCurrB.TabIndex = 5;
-            this.lblBrokenBagsCurrB.Text = "lblBrokenBagsCurrB";
-            // 
-            // lblMaintBagsCurrB
-            // 
-            this.lblMaintBagsCurrB.Location = new System.Drawing.Point(208, 98);
-            this.lblMaintBagsCurrB.Name = "lblMaintBagsCurrB";
-            this.lblMaintBagsCurrB.Size = new System.Drawing.Size(36, 17);
-            this.lblMaintBagsCurrB.TabIndex = 5;
-            this.lblMaintBagsCurrB.Text = "lblMaintBagsCurrB";
-            // 
-            // label29
-            // 
-            this.label29.AutoSize = true;
-            this.label29.Location = new System.Drawing.Point(141, 98);
-            this.label29.Name = "label29";
-            this.label29.Size = new System.Drawing.Size(28, 17);
-            this.label29.TabIndex = 5;
-            this.label29.Text = "ТО";
-            // 
-            // lblBrokenBagsNextB
-            // 
-            this.lblBrokenBagsNextB.Location = new System.Drawing.Point(90, 96);
-            this.lblBrokenBagsNextB.Name = "lblBrokenBagsNextB";
-            this.lblBrokenBagsNextB.Size = new System.Drawing.Size(45, 17);
-            this.lblBrokenBagsNextB.TabIndex = 5;
-            this.lblBrokenBagsNextB.Text = "lblBrokenBagsNextB";
-            // 
-            // label31
-            // 
-            this.label31.AutoSize = true;
-            this.label31.Location = new System.Drawing.Point(23, 96);
-            this.label31.Name = "label31";
-            this.label31.Size = new System.Drawing.Size(61, 17);
-            this.label31.TabIndex = 5;
-            this.label31.Text = "Испорч.";
-            // 
-            // lblMaintBagsNextB
-            // 
-            this.lblMaintBagsNextB.Location = new System.Drawing.Point(208, 96);
-            this.lblMaintBagsNextB.Name = "lblMaintBagsNextB";
-            this.lblMaintBagsNextB.Size = new System.Drawing.Size(36, 17);
-            this.lblMaintBagsNextB.TabIndex = 5;
-            this.lblMaintBagsNextB.Text = "lblMaintBagsNextB";
-            // 
-            // label33
-            // 
-            this.label33.AutoSize = true;
-            this.label33.Location = new System.Drawing.Point(141, 96);
-            this.label33.Name = "label33";
-            this.label33.Size = new System.Drawing.Size(28, 17);
-            this.label33.TabIndex = 5;
-            this.label33.Text = "ТО";
             // 
             // MainForm
             // 
@@ -1320,6 +1345,8 @@ namespace Hitachi_IJP_Message_Manager
         private System.Windows.Forms.Label lblBrokenBagsNextB;
         private System.Windows.Forms.Label label10;
         private System.Windows.Forms.Label label14;
+        private System.Windows.Forms.Button btn_CurrentBatchClear;
+        private System.Windows.Forms.Button btn_NextBatchClear;
     }
 }
 
