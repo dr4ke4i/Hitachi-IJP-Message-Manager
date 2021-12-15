@@ -95,8 +95,8 @@ namespace Hitachi_IJP_Message_Manager
             cmboxCurrentBatchVolume.SelectedIndex = ClosestIndex(cmboxCurrentBatchVolume.Items, Batch.Delta.Volume);
             cmboxNextBatchVolume.SelectedIndex = ClosestIndex(cmboxNextBatchVolume.Items, NextBatch.Delta.Volume);
 
-            chboxBatchDateAUTO.Checked = Settings.FormAutoDate;
-            chboxBatchLotNoAutoINC.Checked = Settings.FormAutoLot;
+            chboxBatchDateAuto.Checked = Settings.FormAutoDate;
+            chboxBatchLotAuto.Checked = Settings.FormAutoLot;
             chboxConnectOnLaunch.Checked = Settings.FormConnectOnLaunch;
 
             btnDisconnect.Enabled = false;
@@ -135,7 +135,7 @@ namespace Hitachi_IJP_Message_Manager
                 Printer.ReloadCounter();
                 if (tmr.lastknowncounter != Printer.Counter)
                 {
-                    if (Printer.Counter > tmr.lastknowncounter + 1)
+                    if (Printer.Counter >= tmr.lastknowncounter + 2)
                     {
                         AddLineToLogs($"ВНИМАНИЕ: пропуск более одного мешка в цикле опроса счётчика принтера.");
                         AddLineToLogs($"tmr.lastknowncounter={tmr.lastknowncounter}; Printer.Counter={Printer.Counter}", _outputlistbox: true);
@@ -164,11 +164,23 @@ namespace Hitachi_IJP_Message_Manager
                                             _outputlistbox: true);
                             // TODO: MessageBox
                         }
+
                         // Start next Batch normally
-                        Batch.Data.Info.Lot = NextBatch.Data.Info.Lot;
-                        Batch.Data.Info.StartDate = NextBatch.Data.Info.StartDate;
-                        StartNewBatch();
-                        // NextBatch should be modified on next UpdateComponents() call
+                        BatchSwapCurrentAndNext();      // swap batches in case we have incomplete next batch
+                        if (PrinterSendNewBatch(Batch))
+                        {
+                            if (chboxBatchLotAuto.Checked)
+                                NextBatch.Data.Info.Lot = Batch.Data.Info.Lot + 1;
+                            else if ((!(tboxBatchNextLotNo.Text.Length == 0)) && int.TryParse(tboxBatchNextLotNo.Text, out int new_value))
+                                NextBatch.Data.Info.Lot = new_value;
+
+                            if (chboxBatchDateAuto.Checked)
+                                NextBatch.Data.Info.StartDate = System.DateTime.Now;
+                            else if (dtpickBatchNextDate.Value.Date <= System.DateTime.Now.Date)
+                                NextBatch.Data.Info.StartDate = dtpickBatchNextDate.Value;
+
+                            SaveSettingsToFile(NextBatch, null, _form: true);
+                        }
                     }
                     else
                     {
@@ -187,14 +199,13 @@ namespace Hitachi_IJP_Message_Manager
                             else
                             {
                                 Printer.ReloadStatus();
-                                //Printer.ReloadOnlineStatus();
                             }
                             tmr.update_switch++;
                         }
                         else
                         {
-                            AddLineToLogs($"Предупреждение: время цикла превысило половину цикла опроса. tmr.cyclemillis={tmr.cyclemillis}; tmrUpdate.Interval={tmrUpdate.Interval}",
-                                          _outputlistbox: true);
+                            AddLineToLogs($"Предупреждение: время цикла превысило половину цикла опроса.", _outputlistbox: true);
+                            AddLineToLogs($"\ttmr.cyclemillis={tmr.cyclemillis}; tmrUpdate.Interval={tmrUpdate.Interval}", _outputlistbox: true);
                         }
                     }
                 }
@@ -210,6 +221,32 @@ namespace Hitachi_IJP_Message_Manager
             tmr.running = false;
             AddLineToLogs(tmr.cyclemillis + ", ms", _outputlistbox: false);
             UpdateComponents();
+        }
+
+        private void BatchSwapCurrentAndNext()
+        {
+            int _delta = NextBatch.LastKnownCounter - NextBatch.StartCounter;
+            CBatch _new_currentbatch = new CBatch(Batch.LastKnownCounter - _delta,
+                                                    Batch.LastKnownCounter,
+                                                    NextBatch.Delta.Maint,
+                                                    NextBatch.Delta.Broken,
+                                                    NextBatch.Delta.Volume,
+                                                    NextBatch.Data.Info.StartDate,
+                                                    NextBatch.Data.Info.Lot);
+
+            // Swapping batch pointers
+            NextBatch = Batch;
+            Batch = _new_currentbatch;
+
+            cmboxCurrentBatchVolume.SelectedIndex = ClosestIndex(cmboxCurrentBatchVolume.Items, Batch.Delta.Volume);
+            cmboxNextBatchVolume.SelectedIndex = ClosestIndex(cmboxNextBatchVolume.Items, NextBatch.Delta.Volume);
+
+            AddLineToLogs($"Обмен завершён", _outputlistbox: true);
+            LogAddCheckpoint(Batch, null, null, null, _outputlistbox: true);
+            LogAddCheckpoint(NextBatch, null, null, null, _outputlistbox: true);
+
+            SaveSettingsToFile(Batch, null, false);
+            SaveSettingsToFile(NextBatch, null, false);
         }
 
         private void MainForm_Load(object sender, EventArgs e)
@@ -285,7 +322,7 @@ namespace Hitachi_IJP_Message_Manager
             lblVolumeNextB.Text = NextBatch.Delta.Volume.ToString();
             lblBrokenBagsNextB.Text = NextBatch.Delta.Broken.ToString();
             lblMaintBagsNextB.Text = NextBatch.Delta.Maint.ToString();
-            if (chboxBatchDateAUTO.Checked) NextBatch.Data.Info.StartDate = System.DateTime.Now;
+            if (chboxBatchDateAuto.Checked) NextBatch.Data.Info.StartDate = System.DateTime.Now;
             lblBatchNextDate.Text = NextBatch.Data.Info.StartDateStr;
 
             if (Printer != null && Printer.PCString.Value != null)
@@ -406,14 +443,14 @@ namespace Hitachi_IJP_Message_Manager
                 string[] output =
                 {
                     $"{ ( _batch == NextBatch ? "NextBatch" : "Batch" ) } = {{ .SC={_batch.StartCounter}     " +
-                    $"\t.MB={_batch.Delta.Maint}    .BB={_batch.Delta.Broken}    .VB={_batch.Delta.Volume} ",
-                    $"\t.Lot={_batch.Data.Info.LotStr}    .StartDate={_batch.Data.Info.StartDateStr}}}"
+                    $".MB={_batch.Delta.Maint}     .BB={_batch.Delta.Broken}     .VB={_batch.Delta.Volume}     " +
+                    $".Lot={_batch.Data.Info.LotStr}     .StartDate={_batch.Data.Info.StartDateStr}}}"
                 };
                 if (_outputlistbox)
                     foreach (string str in output) AddListBoxLine(str);
                 if (Log != null)
                 {
-                    Log.AddLine(output[0] + output[1]);
+                    Log.AddLine(output[0]);
                 }
             }
             if (_settings != null)
@@ -504,56 +541,14 @@ namespace Hitachi_IJP_Message_Manager
             }
             if (_form)
             {
-                Settings.FormAutoDate = chboxBatchDateAUTO.Checked;
-                Settings.FormAutoLot = chboxBatchLotNoAutoINC.Checked;
+                Settings.FormAutoDate = chboxBatchDateAuto.Checked;
+                Settings.FormAutoLot = chboxBatchLotAuto.Checked;
                 Settings.FormConnectOnLaunch = chboxConnectOnLaunch.Checked;
             }
             Settings.SaveSettingsToFile();
         }
 
         #endregion
-
-        private void StartNewBatch()
-        {
-            // Store new Start Batch Counter
-            AddLineToLogs($"Начало новой партии...", _outputlistbox: true);
-            Batch.StartBatch(Printer.Counter);
-            LogAddCheckpoint(Batch, null, null, null, _outputlistbox: true);
-            SaveSettingsToFile(Batch, null, _form: false);
-
-            // Send new Print String to Printer
-            AddLineToLogs($"Отправка новой строки печати \"{GeneratePrintString(Batch)}\" в принтер.", _outputlistbox: true);
-            bool result = Printer.SetNewFormattedString(Batch.Data.Info.Lot, Batch.Data.Info.StartDate);
-            AddLineToLogs($"{(result ? "Успешно" : "Ошибка")} ");
-
-            // Retry if failed
-            if (!result)
-            {
-                result = Printer.SetOnline();
-                result &= Printer.ReloadOnlineStatus();
-                if (result)
-                {
-                    result &= Printer.SetNewFormattedString(Batch.Data.Info.Lot, Batch.Data.Info.StartDate);
-                }
-                AddLineToLogs($"Повторная попытка... {(result ? "Успех" : "Ошибка")}", _outputlistbox: true);
-            }
-
-            if (!result)
-            {
-                HoldOn = true;
-                // todo: MessageBox in a separate thread
-            }
-            else // Everything's good
-            {
-                HoldOn = false;
-                LogAddCheckpoint(null, null, null, Printer, _outputlistbox: true);
-                cmboxCurrentBatchVolume.Items.Clear();
-                foreach (int _item in Batch.Data.PossibleVolume)
-                    cmboxCurrentBatchVolume.Items.Add(_item);
-                cmboxCurrentBatchVolume.SelectedIndex = ClosestIndex(cmboxCurrentBatchVolume.Items, Batch.Delta.Volume);
-            }
-            MaintenanceOn = false;  // ? ? ?
-        }
 
         private void ConnectToPrinter()
         {
@@ -642,9 +637,15 @@ namespace Hitachi_IJP_Message_Manager
 
         private void btnStartNewBatch_Click(object sender, EventArgs e)
         {
+            // Log begin
+            AddLineToLogs($"Нажата кнопка \"{btnStartNewBatch.Text}\"...", _outputlistbox: true);
+            LogAddCheckpoint(Batch, null, null, (Printer.PCString.Value != null ? Printer : null), _outputlistbox: true);
+
             if (Printer.ReloadOnlineStatus() && Printer.IsOnline)
             {
-                Printer.ReloadString();
+                tmr.running = true;
+                tmrUpdate.Enabled = false;
+
                 DialogResult user_answer = MessageBox.Show($"Хотите начать новую партию сейчас?\n" +
                                                         $"Внимание! Будет произведена попытка записи новой строки печати в принтер.\n\n" +
                                                         $"Текущая строка печати в принтере: \"{Printer.PCString.Value}\"\n" +
@@ -653,18 +654,21 @@ namespace Hitachi_IJP_Message_Manager
                                                         MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2);
 
                 if (user_answer == DialogResult.Yes)
-                {
-                    // Log begin
-                    AddLineToLogs($"Нажатие кнопки \"{btnStartNewBatch.Text}\"...", _outputlistbox: true);
+                {   // Log success/failure inside routines
+                    AddLineToLogs($"Начало новой партии...", _outputlistbox: true);
                     Printer.ReloadCounter();
-                    // Log success (inside routine)
-                    StartNewBatch();
+                    Batch.StartBatch(Printer.Counter);
+                    PrinterSendNewBatch(Batch);
+                    SaveSettingsToFile(Batch, null, _form: false);
+                }
+                else    // Log User Cancelled
+                {
+                    AddLineToLogs($"Отменено пользователем", _outputlistbox: false);
                 }
             }
             else    // Log failure
             {
-                AddLineToLogs($"Принтер - отсутствует подключение, или принтер оффлайн", _outputlistbox: true);
-                MessageBox.Show("Требуется подключение к принтеру, чтобы произвести изменения", "Ошибка");
+                AddLineToLogs($"Принтер - не подключен, или не удалось обновить сетевой статус принтера", _outputlistbox: true);
             }
         }
 
@@ -761,20 +765,18 @@ namespace Hitachi_IJP_Message_Manager
             string _subst = (_cmbox == cmboxNextBatchVolume ? "следующей" : "текущей");
 
             // Log begin
-            AddLineToLogs($"Изменение объёма {_subst} партии на {_cmbox.SelectedItem.ToString()}...", _outputlistbox: true);
+            AddLineToLogs($"Изменение объёма {_subst} партии на {_cmbox.SelectedItem}...", _outputlistbox: true);
+            LogAddCheckpoint(_batch, null, null, null, _outputlistbox: true);
             if (_batch.SetVolume((int)_cmbox.SelectedItem))
             {
                 // Log success
-                if (_cmbox == cmboxCurrentBatchVolume)
-                {
-                    SaveSettingsToFile(_batch, null, _form: false);
-                }
+                SaveSettingsToFile(_batch, null, _form: false);
                 UpdateComponents();
                 LogAddCheckpoint(_batch, null, null, null, _outputlistbox: true);
             }
             else    // Log failure
             {
-                AddLineToLogs($"Невозможно изменить объём {_subst} партии на \"{_cmbox.SelectedItem.ToString()}\"", _outputlistbox: true);
+                AddLineToLogs($"Невозможно изменить объём {_subst} партии на \"{_cmbox.SelectedItem}\"", _outputlistbox: true);
                 _cmbox.SelectedIndex = ClosestIndex(_cmbox.Items, _batch.Delta.Volume);
                 _cmbox.Update();
                 UpdateComponents();
@@ -812,20 +814,20 @@ namespace Hitachi_IJP_Message_Manager
             // Log begin
             AddLineToLogs($"Добавление объёма партии {_cmbox.Text} (нажата кнопка \"Ввод\" в {_cmbox.Name})...", _outputlistbox: true);
             LogAddCheckpoint(_batch, null, null, null, _outputlistbox: true);
-            AddLineToLogs($"PossibleVolume {{ {string.Join(",", Batch.Data.PossibleVolume)} }}", _outputlistbox: true);
+            AddLineToLogs($"PossibleVolume {{ {string.Join(",", _batch.Data.PossibleVolume)} }}", _outputlistbox: true);
             AddLineToLogs($"Объём текущей партии {Batch.Delta.Volume}, объём следующей партии {NextBatch.Delta.Volume}", _outputlistbox: true);
             AddLineToLogs($"Список {_cmbox.Name} {{ {string.Join(",", _cmbox.Items.Cast<int>())} }}", _outputlistbox: true);
 
+            // Check if the valut is correct
             if (int.TryParse(_cmbox.Text, out int new_value))
             {
-                bool _is_new = true;
                 bool _has_possiblevolume = false;
                 bool _has_cmbox = false;
 
                 List<int> new_list_cmbox = new List<int>();
 
                 // Look thru PossibleVolume
-                foreach (int _item in Batch.Data.PossibleVolume)
+                foreach (int _item in _batch.Data.PossibleVolume)
                 {
                     if (_item == new_value)
                     {
@@ -834,7 +836,6 @@ namespace Hitachi_IJP_Message_Manager
                             new_list_cmbox.Add(_item);
                             _has_possiblevolume = true;
                             _has_cmbox = true;
-                            _is_new = false;
                         }
                     }
                     else    // _item != new_value
@@ -861,7 +862,6 @@ namespace Hitachi_IJP_Message_Manager
                     if (_item == new_value)
                     {
                         _has_cmbox = true;
-                        _is_new = false;
                     }
                 }
 
@@ -869,57 +869,57 @@ namespace Hitachi_IJP_Message_Manager
                 int prev_volume = _batch.Delta.Volume;
                 if (_batch.SetVolume(new_value))
                 {
-                    if (_is_new)
+                    if (!_has_possiblevolume)
                     {
-                        if (!_has_possiblevolume)
+                        DialogResult user_answer = MessageBox.Show($"Хотите добавить {new_value} в список постоянных (сохранённых) вариантов объёма партии?\n\n" +
+                                                                $"[Да] - вариант объёма партии {new_value} станет постоянным, даже после перезапуска программы\n" +
+                                                                $"[Нет] - вариант объёма партии {new_value} сохранится только на время текущей партии\n",
+                                                                "Вопрос",
+                                                                MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2);
+                        // 'Yes' means we save settings to file
+                        if (user_answer == DialogResult.Yes)
                         {
-                            DialogResult user_answer = MessageBox.Show($"Хотите добавить {new_value} в список постоянных (сохранённых) вариантов объёма партии?\n\n" +
-                                                                   $"[Да] - вариант объёма партии {new_value} станет постоянным, даже после перезапуска программы\n" +
-                                                                   $"[Нет] - вариант объёма партии {new_value} сохранится только на время текущей партии\n",
-                                                                    "Вопрос",
-                                                                    MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2);
-                            // 'Yes' means we save settings to file
-                            if (user_answer == DialogResult.Yes)
-                            {
-                                Batch.Data.AddToPossibleVolumeList(new_value);
-                                NextBatch.Data.AddToPossibleVolumeList(new_value);
-                                AddLineToLogs($"Добавлено значение в PossibleVolume, новый список: {{ {string.Join(",", Batch.Data.PossibleVolume)} }}",
-                                                _outputlistbox: true);
-                            }
-                            else
-                            {
-                                AddLineToLogs($"Ответ пользователя: \"Не добавлять в сохранённый список объёмов\"", _outputlistbox: true);
-                            }
+                            Batch.Data.AddToPossibleVolumeList(new_value);
+                            NextBatch.Data.AddToPossibleVolumeList(new_value);
+                            AddLineToLogs($"Добавлено значение в PossibleVolume, новый список: {{ {string.Join(",", _batch.Data.PossibleVolume)} }}",
+                                            _outputlistbox: true);
+                            SaveSettingsToFile(Batch, null, false);
+                            SaveSettingsToFile(NextBatch, null, false);
                         }
-
-                        if (!_has_cmbox)
+                        else
                         {
-                            new_list_cmbox.Add(new_value);
-                            new_list_cmbox.Sort();
-                            cmboxCurrentBatchVolume.Items.Clear();
-                            cmboxNextBatchVolume.Items.Clear();
-                            foreach (int _item in new_list_cmbox)
-                            {
-                                cmboxCurrentBatchVolume.Items.Add(_item);
-                                cmboxNextBatchVolume.Items.Add(_item);
-                            }
-                            cmboxNextBatchVolume.SelectedIndex = ClosestIndex(cmboxNextBatchVolume.Items, NextBatch.Delta.Volume);
-                            cmboxCurrentBatchVolume.SelectedIndex = ClosestIndex(cmboxCurrentBatchVolume.Items, Batch.Delta.Volume);
-                            cmboxNextBatchVolume.Update();
-                            cmboxCurrentBatchVolume.Update();
-                            AddLineToLogs($"Добавлено значение в {_cmbox.Name}. Новый список: {{ {string.Join(",", _cmbox.Items.Cast<int>())} }}",
-                                _outputlistbox: true);
+                            AddLineToLogs($"Ответ пользователя: \"Не добавлять в сохранённый список объёмов\"", _outputlistbox: true);
                         }
-
-                        if (_cmbox == cmboxCurrentBatchVolume)
-                            btn_cmboxAddCurrentBatchVolumeItem.Visible = false;
-                        if (_cmbox == cmboxNextBatchVolume)
-                            btn_cmboxAddNextBatchVolumeItem.Visible = false;
-                        SaveSettingsToFile(_batch, null, _form: false);
-                        LogAddCheckpoint(_batch, null, null, null, _outputlistbox: true);
-                        UpdateComponents();
                     }
-                    else
+
+                    if (!_has_cmbox)
+                    {
+                        new_list_cmbox.Add(new_value);
+                        new_list_cmbox.Sort();
+                        cmboxCurrentBatchVolume.Items.Clear();
+                        cmboxNextBatchVolume.Items.Clear();
+                        foreach (int _item in new_list_cmbox)
+                        {
+                            cmboxCurrentBatchVolume.Items.Add(_item);
+                            cmboxNextBatchVolume.Items.Add(_item);
+                        }
+                        cmboxNextBatchVolume.SelectedIndex = ClosestIndex(cmboxNextBatchVolume.Items, NextBatch.Delta.Volume);
+                        cmboxCurrentBatchVolume.SelectedIndex = ClosestIndex(cmboxCurrentBatchVolume.Items, Batch.Delta.Volume);
+                        cmboxNextBatchVolume.Update();
+                        cmboxCurrentBatchVolume.Update();
+                        AddLineToLogs($"Добавлено значение в {_cmbox.Name}. Новый список: {{ {string.Join(",", _cmbox.Items.Cast<int>())} }}",
+                            _outputlistbox: true);
+                    }
+
+                    if (_cmbox == cmboxCurrentBatchVolume)
+                        btn_cmboxAddCurrentBatchVolumeItem.Visible = false;
+                    if (_cmbox == cmboxNextBatchVolume)
+                        btn_cmboxAddNextBatchVolumeItem.Visible = false;
+                    SaveSettingsToFile(_batch, null, _form: false);
+                    LogAddCheckpoint(_batch, null, null, null, _outputlistbox: true);
+                    UpdateComponents();
+
+                    if (_has_possiblevolume && _has_cmbox)
                     {
                         _batch.SetVolume(prev_volume);
                         AddLineToLogs($"{new_value} уже существует в списоке возможных объёмов партии", _outputlistbox: true);
@@ -1087,7 +1087,7 @@ namespace Hitachi_IJP_Message_Manager
         {
             if (!MyForm.AppStarting)
             {
-                if (chboxBatchLotNoAutoINC.Checked)
+                if (chboxBatchLotAuto.Checked)
                 {
                     NextBatch.Data.Info.Lot = Batch.Data.Info.Lot + 1;
                 }
@@ -1098,10 +1098,10 @@ namespace Hitachi_IJP_Message_Manager
                 UpdateComponents();
                 SaveSettingsToFile(NextBatch, null, _form: true);
                 // Log success
-                AddLineToLogs($"Автоинкремент номера установлен: \"{(chboxBatchLotNoAutoINC.Checked ? "ВКЛ" : "ВЫКЛ")}\"", _outputlistbox: true);
+                AddLineToLogs($"Автоинкремент номера установлен: \"{(chboxBatchLotAuto.Checked ? "ВКЛ" : "ВЫКЛ")}\"", _outputlistbox: true);
             }
-            tboxBatchNextLotNo.Enabled = chboxBatchLotNoAutoINC.Checked ? false : true;
-            btn_tbBatchNextLotNoConfirm.Enabled = chboxBatchLotNoAutoINC.Checked ? false : true;
+            tboxBatchNextLotNo.Enabled = chboxBatchLotAuto.Checked ? false : true;
+            btn_tbBatchNextLotNoConfirm.Enabled = chboxBatchLotAuto.Checked ? false : true;
         }
 
         private void tboxBatchLotNo_KeyPress(object sender, KeyPressEventArgs e)
@@ -1136,7 +1136,7 @@ namespace Hitachi_IJP_Message_Manager
                         UpdateComponents();
                         // Log success
                         LogAddCheckpoint(_batch, null, null, null, _outputlistbox: true);
-                        AddLineToLogs($"Для обновления информации печати в принтере, отправьте новую строку печати вручную.\n");
+                        AddLineToLogs($"Для обновления информации печати в принтере, отправьте новую строку печати вручную.\n", _outputlistbox: true);
                         AddLineToLogs($"Чтобы сделать это, нажмите на кнопку \"{btnReWriteStringToPrinter.Text}\"", _outputlistbox: true);
                     }
                     else    // Log neutral
@@ -1184,7 +1184,7 @@ namespace Hitachi_IJP_Message_Manager
         {
             if (!MyForm.AppStarting)
             {
-                if (chboxBatchDateAUTO.Checked)
+                if (chboxBatchDateAuto.Checked)
                 {
                     NextBatch.Data.Info.StartDate = System.DateTime.Now;
                 }
@@ -1195,22 +1195,22 @@ namespace Hitachi_IJP_Message_Manager
                 SaveSettingsToFile(NextBatch, null, _form: true);
                 UpdateComponents();
                 // Log success
-                AddLineToLogs($"Автоматическая дата установлена: \"{(chboxBatchDateAUTO.Checked ? "ВКЛ" : "ВЫКЛ")}\"", _outputlistbox: true);
+                AddLineToLogs($"Автоматическая дата установлена: \"{(chboxBatchDateAuto.Checked ? "ВКЛ" : "ВЫКЛ")}\"", _outputlistbox: true);
             }
-            dtpickBatchNextDate.Enabled = chboxBatchDateAUTO.Checked ? false : true;
+            dtpickBatchNextDate.Enabled = chboxBatchDateAuto.Checked ? false : true;
         }
 
         private void SetBatchDate(CBatch _batch)
         {
             DateTimePicker _dtpick = (_batch == NextBatch) ? dtpickBatchNextDate : dtpickBatchDate;
             string _subst = (_batch == NextBatch) ? "следующей" : "текущей";
+            string new_date = _dtpick.Value.ToString("dd.MM.yy");
 
             // Log begin
-            AddLineToLogs($"Ввод новой даты {_dtpick.Value.Date.ToString()} в {_subst} партии (выбрана дата в календаре)...", _outputlistbox: true);
+            AddLineToLogs($"Ввод новой даты {new_date} в {_subst} партии (выбрана дата в календаре)...", _outputlistbox: true);
 
             if (DateTime.Now.Date >= _dtpick.Value.Date)
             {
-                string new_date = _dtpick.Value.ToString("dd.MM.yy");
                 if (new_date != _batch.Data.Info.StartDateStr)
                 {
                     // Log success
@@ -1221,7 +1221,7 @@ namespace Hitachi_IJP_Message_Manager
                     LogAddCheckpoint(_batch, null, null, null, _outputlistbox: true);
                     if (_batch==Batch)
                     {
-                        AddLineToLogs($"Для обновления информации печати в принтере, отправьте новую строку печати вручную.\n");
+                        AddLineToLogs($"Для обновления информации печати в принтере, отправьте новую строку печати вручную.\n", _outputlistbox: true);
                         AddLineToLogs($"Чтобы сделать это, нажмите на кнопку \"{btnReWriteStringToPrinter.Text}\"", _outputlistbox: true);
                     }
                 }
@@ -1314,16 +1314,12 @@ namespace Hitachi_IJP_Message_Manager
         private void btnReWriteStringToPrinter_Click(object sender, EventArgs e)
         {
             // Log begin
-            AddLineToLogs($"Отправка сообщения печати в принтер...", _outputlistbox: true);
+            AddLineToLogs($"Нажата кнопка \"{btnReWriteStringToPrinter.Text}\"...", _outputlistbox: true);
+
             if (Printer.ReloadOnlineStatus() && Printer.IsOnline)
             {
                 tmr.running = true;
                 tmrUpdate.Enabled = false;
-                if (!Printer.ReloadString())
-                {
-                    // Log warning
-                    AddLineToLogs($"Не удалось перечитать строку печати из принтера", _outputlistbox: true);
-                }
 
                 DialogResult user_answer = MessageBox.Show($"Вы хотите заменить строку печати принтера \n" +
                                                             $"\t\"{Printer.PCString.Value}\"\n\n" +
@@ -1332,25 +1328,65 @@ namespace Hitachi_IJP_Message_Manager
                                                             MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2);
                 if (user_answer == DialogResult.Yes)
                 {
-                    bool result = Printer.SetNewFormattedString(Batch.Data.Info.Lot, Batch.Data.Info.StartDate);
-                    UpdateComponents();
-                    // Log success / failure
-                    AddLineToLogs($"Отправка новой строки печати: {(result ? "успешно" : "ошибка")}", _outputlistbox: true);
-                    AddLineToLogs($"Новая строка печати: [{Printer.PCString.Length}]: \"{Printer.PCString.Value}\"", _outputlistbox: true);
+                    bool result = PrinterSendNewBatch(Batch);
                     MessageBox.Show(result ? "OK" : "Ошибка", "Результат");
                 }
                 else    // Log User Cancelled
                 {
-                    AddLineToLogs($"Ответ пользователя: \"No\"", _outputlistbox: false);
+                    AddLineToLogs($"Отменено пользователем", _outputlistbox: false);
                 }
+
                 tmr.running = false;
                 tmrUpdate.Enabled = true;
             }
             else    // Log failure
             {
-                AddLineToLogs($"Принтер - не подключен, или не удалось прочитать статус принтера", _outputlistbox: true);
-                MessageBox.Show("Требуется подключение к принтеру, чтобы обновить строку печати в принтере", "Ошибка");
+                AddLineToLogs($"Принтер - не подключен, или не удалось обновить сетевой статус принтера", _outputlistbox: true);
             }                
+        }
+
+        private bool PrinterSendNewBatch(CBatch _batch)
+        {
+            // Log begin
+            AddLineToLogs($"Отправка в принтер (\"{(Printer.PCString.Value != null ? Printer.PCString.Value : "")}\") " +
+                $"новой маркировки партии \"{GeneratePrintString(_batch)}\"...", _outputlistbox: true);
+            LogAddCheckpoint(Batch, null, null, (Printer.PCString.Value != null ? Printer : null), _outputlistbox: true);
+
+            bool result = Printer.IsConnected && Printer.IsOnline;
+            if (result)
+            {
+                result &= Printer.SetNewFormattedString(_batch.Data.Info.Lot, _batch.Data.Info.StartDate);
+                AddLineToLogs($"Отправка сообщения... {(result ? "Успех!" : "Ошибка")}", _outputlistbox: true);
+
+                // Retry if failed
+                if (!result)
+                {
+                    result = Printer.SetOnline();
+                    result &= Printer.ReloadOnlineStatus();
+                    if (result)
+                    {
+                        result &= Printer.SetNewFormattedString(_batch.Data.Info.Lot, _batch.Data.Info.StartDate);
+                    }
+                    AddLineToLogs($"Повторная попытка... {(result ? "Успех" : "Ошибка")}", _outputlistbox: true);
+                }
+
+                if (!result)
+                {
+                    HoldOn = true;
+                    AddLineToLogs($"Программа переведена в режим бездействия. Устраните ошибку и повторите снова.", _outputlistbox: true);
+                    // todo: MessageBox in a separate thread
+                }
+                else // Everything's good
+                {
+                    HoldOn = false;
+                    LogAddCheckpoint(null, null, null, Printer, _outputlistbox: true);
+                }
+            }
+            else
+            {
+                AddLineToLogs($"Нет соединения с принтером", _outputlistbox: true);
+            }
+            return result;
         }
 
         private void tlstr_miSaveAs_Click(object sender, EventArgs e)
@@ -1633,6 +1669,76 @@ namespace Hitachi_IJP_Message_Manager
         private void btn_CurrentBatchClear_Click(object sender, EventArgs e)
         {
             ClearBatchBagCounters(Batch);
+        }
+
+        private void btn_NextBatchClear_Click(object sender, EventArgs e)
+        {
+            ClearBatchBagCounters(NextBatch);
+        }
+
+        private void btn_SwapBatchCurrentNext_Click(object sender, EventArgs e)
+        {
+            bool _swap_enable = !(Printer.IsConnected && MaintenanceOn);
+            bool _write_enable = false;
+            if (Printer.IsConnected)
+            {
+                _write_enable = Printer.ReloadOnlineStatus();
+                _write_enable &= Printer.IsOnline && (!MaintenanceOn) && (!HoldOn);
+            }
+
+            AddLineToLogs($"Нажата кнопка \"Обменять\" текущую и следующую партии...", _outputlistbox: true);
+            AddLineToLogs($"Обмен партий {(_swap_enable ? "возможен" : "не возможен")}, запись в принтер {(_write_enable ? "возможна" : "невозможна")}",
+                _outputlistbox: true);
+            LogAddCheckpoint(Batch, null, null, null, _outputlistbox: true);
+            LogAddCheckpoint(NextBatch, null, null, null, _outputlistbox: true);
+            if (Printer.PCString.Value != null)
+                LogAddCheckpoint(null, null, null, Printer, _outputlistbox: true);
+
+            if (_swap_enable)
+            {                
+                DialogResult user_answer;
+                user_answer = MessageBox.Show($"Вы хотите обменять текущую и следующую партию местами?\nБудут обменяны все данные партии " +
+                    $"{(_write_enable ? ", после чего будет произведена попытка записи новой строки в принтер." : ".")}\n\n" +
+                    $"\t\t\tТекущая\t\tСледующая\n" +
+                    $"    Номер партии\t\t{Batch.Data.Info.LotStr}\t<--->      {NextBatch.Data.Info.LotStr}\n" +
+                    $"    Дата партии\t\t{Batch.Data.Info.StartDateStr}\t<--->      {NextBatch.Data.Info.StartDateStr}\n" +
+                    $"    Маркированные мешки\t{Batch.LastKnownCounter - Batch.StartCounter - Batch.Delta.Maint - Batch.Delta.Broken}\t<--->      " +
+                    $"{NextBatch.LastKnownCounter - NextBatch.StartCounter - NextBatch.Delta.Maint - NextBatch.Delta.Broken}\n" +
+                    $"    Испорченные мешки\t{Batch.Delta.Broken}\t<--->      {NextBatch.Delta.Broken}\n" +
+                    $"    Пропущенный при ТО\t{Batch.Delta.Maint}\t<--->      {NextBatch.Delta.Maint}\n" +
+                    $"    Объём партии\t\t{Batch.Delta.Volume}\t<--->      {NextBatch.Delta.Volume}\n\n" +
+                    $"    {(_write_enable ? $"    Текущая строка в принтере \"{(Printer.PCString.Value != null ? Printer.PCString.Value : "")}\"" : "" )}" +
+                    $"    {(_write_enable ? $"    Новая строка для записи \"{GeneratePrintString(NextBatch)}\"" : "")}",
+                    "Вопрос", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2);
+
+                if (user_answer == DialogResult.Yes)
+                {
+
+                    MyForm.AppStarting = true;
+                    chboxBatchDateAuto.Checked = false;
+                    chboxBatchLotAuto.Checked = false;
+                    BatchSwapCurrentAndNext();
+                    MyForm.AppStarting = false;
+                    SaveSettingsToFile(null, null, _form: true);
+
+                    if (_write_enable)
+                    {
+                        PrinterSendNewBatch(Batch);
+                    }
+
+                    SaveSettingsToFile(Batch, null, false);
+                    SaveSettingsToFile(NextBatch, null, false);
+                    UpdateComponents();
+                }            
+                else
+                {
+                    AddLineToLogs($"Отменено пользователем", _outputlistbox: true);
+                }
+            }
+            else
+            {
+                AddLineToLogs($"Обмен невозможен (принтер подключен и находится в режиме ТО)", _outputlistbox: true);
+            }
         }
     }
 

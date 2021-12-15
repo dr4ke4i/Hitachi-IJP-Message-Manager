@@ -61,9 +61,9 @@ namespace Hitachi_IJP_Message_Manager
             this.lblBatchLotNo = new System.Windows.Forms.Label();
             this.btn_tbBatchLotNoConfirm = new System.Windows.Forms.Button();
             this.tboxBatchLotNo = new System.Windows.Forms.TextBox();
-            this.chboxBatchLotNoAutoINC = new System.Windows.Forms.CheckBox();
+            this.chboxBatchLotAuto = new System.Windows.Forms.CheckBox();
             this.lblBatchNextLotNo = new System.Windows.Forms.Label();
-            this.chboxBatchDateAUTO = new System.Windows.Forms.CheckBox();
+            this.chboxBatchDateAuto = new System.Windows.Forms.CheckBox();
             this.lblBatchDate = new System.Windows.Forms.Label();
             this.lblBatchNextDate = new System.Windows.Forms.Label();
             this.label13 = new System.Windows.Forms.Label();
@@ -135,6 +135,7 @@ namespace Hitachi_IJP_Message_Manager
             this.btn_SwapBatchCurrentNext = new System.Windows.Forms.Button();
             this.label10 = new System.Windows.Forms.Label();
             this.label14 = new System.Windows.Forms.Label();
+            this.label28 = new System.Windows.Forms.Label();
             this.cmstrip_lbLog.SuspendLayout();
             this.grpBoxCurrentBatch.SuspendLayout();
             this.grpBoxNextBatch.SuspendLayout();
@@ -197,12 +198,11 @@ namespace Hitachi_IJP_Message_Manager
             // 
             // label1
             // 
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(17, 49);
+            this.label1.Location = new System.Drawing.Point(27, 49);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(119, 17);
+            this.label1.Size = new System.Drawing.Size(158, 17);
             this.label1.TabIndex = 4;
-            this.label1.Text = "Маркированные:";
+            this.label1.Text = "маркированные";
             // 
             // lblMarkedBags
             // 
@@ -215,12 +215,11 @@ namespace Hitachi_IJP_Message_Manager
             // 
             // label2
             // 
-            this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(17, 81);
+            this.label2.Location = new System.Drawing.Point(27, 81);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(103, 17);
+            this.label2.Size = new System.Drawing.Size(158, 17);
             this.label2.TabIndex = 4;
-            this.label2.Text = "Испорченные:";
+            this.label2.Text = "испорченные";
             // 
             // lblBrokenBags
             // 
@@ -233,12 +232,11 @@ namespace Hitachi_IJP_Message_Manager
             // 
             // label3
             // 
-            this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(17, 113);
+            this.label3.Location = new System.Drawing.Point(27, 113);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(158, 17);
             this.label3.TabIndex = 4;
-            this.label3.Text = "Пропущенные при ТО:";
+            this.label3.Text = "пропущенные при ТО:";
             // 
             // lblMaintBags
             // 
@@ -252,7 +250,7 @@ namespace Hitachi_IJP_Message_Manager
             // label4
             // 
             this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(12, 335);
+            this.label4.Location = new System.Drawing.Point(12, 311);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(108, 17);
             this.label4.TabIndex = 4;
@@ -386,7 +384,7 @@ namespace Hitachi_IJP_Message_Manager
             // label9
             // 
             this.label9.AutoSize = true;
-            this.label9.Location = new System.Drawing.Point(12, 212);
+            this.label9.Location = new System.Drawing.Point(12, 188);
             this.label9.Name = "label9";
             this.label9.Size = new System.Drawing.Size(106, 17);
             this.label9.TabIndex = 9;
@@ -422,16 +420,16 @@ namespace Hitachi_IJP_Message_Manager
             this.tboxBatchLotNo.KeyDown += new System.Windows.Forms.KeyEventHandler(this.tboxBatchLotNo_KeyDown);
             this.tboxBatchLotNo.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.tboxBatchLotNo_KeyPress);
             // 
-            // chboxBatchLotNoAutoINC
+            // chboxBatchLotAuto
             // 
-            this.chboxBatchLotNoAutoINC.AutoSize = true;
-            this.chboxBatchLotNoAutoINC.Location = new System.Drawing.Point(139, 211);
-            this.chboxBatchLotNoAutoINC.Name = "chboxBatchLotNoAutoINC";
-            this.chboxBatchLotNoAutoINC.Size = new System.Drawing.Size(61, 21);
-            this.chboxBatchLotNoAutoINC.TabIndex = 10;
-            this.chboxBatchLotNoAutoINC.Text = "Авто";
-            this.chboxBatchLotNoAutoINC.UseVisualStyleBackColor = true;
-            this.chboxBatchLotNoAutoINC.CheckedChanged += new System.EventHandler(this.chboxBatchLotNoAutoINC_CheckedChanged);
+            this.chboxBatchLotAuto.AutoSize = true;
+            this.chboxBatchLotAuto.Location = new System.Drawing.Point(139, 187);
+            this.chboxBatchLotAuto.Name = "chboxBatchLotAuto";
+            this.chboxBatchLotAuto.Size = new System.Drawing.Size(61, 21);
+            this.chboxBatchLotAuto.TabIndex = 10;
+            this.chboxBatchLotAuto.Text = "Авто";
+            this.chboxBatchLotAuto.UseVisualStyleBackColor = true;
+            this.chboxBatchLotAuto.CheckedChanged += new System.EventHandler(this.chboxBatchLotNoAutoINC_CheckedChanged);
             // 
             // lblBatchNextLotNo
             // 
@@ -443,16 +441,16 @@ namespace Hitachi_IJP_Message_Manager
             this.lblBatchNextLotNo.TabIndex = 5;
             this.lblBatchNextLotNo.Text = "lblBatchNextLotNo";
             // 
-            // chboxBatchDateAUTO
+            // chboxBatchDateAuto
             // 
-            this.chboxBatchDateAUTO.AutoSize = true;
-            this.chboxBatchDateAUTO.Location = new System.Drawing.Point(139, 385);
-            this.chboxBatchDateAUTO.Name = "chboxBatchDateAUTO";
-            this.chboxBatchDateAUTO.Size = new System.Drawing.Size(61, 21);
-            this.chboxBatchDateAUTO.TabIndex = 10;
-            this.chboxBatchDateAUTO.Text = "Авто";
-            this.chboxBatchDateAUTO.UseVisualStyleBackColor = true;
-            this.chboxBatchDateAUTO.CheckedChanged += new System.EventHandler(this.chboxBatchDateAUTO_CheckedChanged);
+            this.chboxBatchDateAuto.AutoSize = true;
+            this.chboxBatchDateAuto.Location = new System.Drawing.Point(139, 361);
+            this.chboxBatchDateAuto.Name = "chboxBatchDateAuto";
+            this.chboxBatchDateAuto.Size = new System.Drawing.Size(61, 21);
+            this.chboxBatchDateAuto.TabIndex = 10;
+            this.chboxBatchDateAuto.Text = "Авто";
+            this.chboxBatchDateAuto.UseVisualStyleBackColor = true;
+            this.chboxBatchDateAuto.CheckedChanged += new System.EventHandler(this.chboxBatchDateAUTO_CheckedChanged);
             // 
             // lblBatchDate
             // 
@@ -475,7 +473,7 @@ namespace Hitachi_IJP_Message_Manager
             // label13
             // 
             this.label13.AutoSize = true;
-            this.label13.Location = new System.Drawing.Point(12, 386);
+            this.label13.Location = new System.Drawing.Point(12, 362);
             this.label13.Name = "label13";
             this.label13.Size = new System.Drawing.Size(97, 17);
             this.label13.TabIndex = 9;
@@ -555,7 +553,7 @@ namespace Hitachi_IJP_Message_Manager
             // btnStartNewBatch
             // 
             this.btnStartNewBatch.AutoSize = true;
-            this.btnStartNewBatch.Location = new System.Drawing.Point(12, 12);
+            this.btnStartNewBatch.Location = new System.Drawing.Point(47, 251);
             this.btnStartNewBatch.Name = "btnStartNewBatch";
             this.btnStartNewBatch.Size = new System.Drawing.Size(163, 27);
             this.btnStartNewBatch.TabIndex = 17;
@@ -920,9 +918,10 @@ namespace Hitachi_IJP_Message_Manager
             this.grpBoxCurrentBatch.Controls.Add(this.label17);
             this.grpBoxCurrentBatch.Controls.Add(this.label26);
             this.grpBoxCurrentBatch.Controls.Add(this.label29);
-            this.grpBoxCurrentBatch.Location = new System.Drawing.Point(216, 171);
+            this.grpBoxCurrentBatch.Controls.Add(this.btnStartNewBatch);
+            this.grpBoxCurrentBatch.Location = new System.Drawing.Point(216, 147);
             this.grpBoxCurrentBatch.Name = "grpBoxCurrentBatch";
-            this.grpBoxCurrentBatch.Size = new System.Drawing.Size(258, 250);
+            this.grpBoxCurrentBatch.Size = new System.Drawing.Size(258, 291);
             this.grpBoxCurrentBatch.TabIndex = 34;
             this.grpBoxCurrentBatch.TabStop = false;
             this.grpBoxCurrentBatch.Text = "Текущая партия";
@@ -1014,7 +1013,7 @@ namespace Hitachi_IJP_Message_Manager
             this.grpBoxNextBatch.Controls.Add(this.lblMarkedBagsNextB);
             this.grpBoxNextBatch.Controls.Add(this.label31);
             this.grpBoxNextBatch.Controls.Add(this.lblBatchNextLotNo);
-            this.grpBoxNextBatch.Location = new System.Drawing.Point(574, 171);
+            this.grpBoxNextBatch.Location = new System.Drawing.Point(574, 147);
             this.grpBoxNextBatch.Name = "grpBoxNextBatch";
             this.grpBoxNextBatch.Size = new System.Drawing.Size(258, 250);
             this.grpBoxNextBatch.TabIndex = 35;
@@ -1045,6 +1044,7 @@ namespace Hitachi_IJP_Message_Manager
             this.btn_NextBatchClear.TabIndex = 13;
             this.btn_NextBatchClear.Text = "Обнулить";
             this.btn_NextBatchClear.UseVisualStyleBackColor = true;
+            this.btn_NextBatchClear.Click += new System.EventHandler(this.btn_NextBatchClear_Click);
             // 
             // btn_cmboxDeleteNextBatchVolumeItem
             // 
@@ -1127,17 +1127,18 @@ namespace Hitachi_IJP_Message_Manager
             // btn_SwapBatchCurrentNext
             // 
             this.btn_SwapBatchCurrentNext.AutoSize = true;
-            this.btn_SwapBatchCurrentNext.Location = new System.Drawing.Point(480, 267);
+            this.btn_SwapBatchCurrentNext.Location = new System.Drawing.Point(480, 243);
             this.btn_SwapBatchCurrentNext.Name = "btn_SwapBatchCurrentNext";
             this.btn_SwapBatchCurrentNext.Size = new System.Drawing.Size(84, 61);
             this.btn_SwapBatchCurrentNext.TabIndex = 36;
-            this.btn_SwapBatchCurrentNext.Text = "-->\r\nОбменять\r\n<--";
+            this.btn_SwapBatchCurrentNext.Text = "-->          \r\nОбменять\r\n          <--";
             this.btn_SwapBatchCurrentNext.UseVisualStyleBackColor = true;
+            this.btn_SwapBatchCurrentNext.Click += new System.EventHandler(this.btn_SwapBatchCurrentNext_Click);
             // 
             // label10
             // 
             this.label10.AutoSize = true;
-            this.label10.Location = new System.Drawing.Point(12, 256);
+            this.label10.Location = new System.Drawing.Point(12, 232);
             this.label10.Name = "label10";
             this.label10.Size = new System.Drawing.Size(101, 17);
             this.label10.TabIndex = 9;
@@ -1146,11 +1147,20 @@ namespace Hitachi_IJP_Message_Manager
             // label14
             // 
             this.label14.AutoSize = true;
-            this.label14.Location = new System.Drawing.Point(12, 286);
+            this.label14.Location = new System.Drawing.Point(12, 262);
             this.label14.Name = "label14";
             this.label14.Size = new System.Drawing.Size(86, 17);
             this.label14.TabIndex = 9;
             this.label14.Text = "Исключено:";
+            // 
+            // label28
+            // 
+            this.label28.AutoSize = true;
+            this.label28.Location = new System.Drawing.Point(17, 17);
+            this.label28.Name = "label28";
+            this.label28.Size = new System.Drawing.Size(57, 17);
+            this.label28.TabIndex = 4;
+            this.label28.Text = "Мешки:";
             // 
             // MainForm
             // 
@@ -1187,13 +1197,12 @@ namespace Hitachi_IJP_Message_Manager
             this.Controls.Add(this.label12);
             this.Controls.Add(this.btnStorePrintingMessageIntoMemory);
             this.Controls.Add(this.btnStartMaintenance);
-            this.Controls.Add(this.btnStartNewBatch);
             this.Controls.Add(this.label11);
             this.Controls.Add(this.tboxTimerTickPeriod);
             this.Controls.Add(this.lboxLog);
             this.Controls.Add(this.tboxPrinterPCString);
-            this.Controls.Add(this.chboxBatchDateAUTO);
-            this.Controls.Add(this.chboxBatchLotNoAutoINC);
+            this.Controls.Add(this.chboxBatchDateAuto);
+            this.Controls.Add(this.chboxBatchLotAuto);
             this.Controls.Add(this.label13);
             this.Controls.Add(this.label14);
             this.Controls.Add(this.label10);
@@ -1218,6 +1227,7 @@ namespace Hitachi_IJP_Message_Manager
             this.Controls.Add(this.label6);
             this.Controls.Add(this.label5);
             this.Controls.Add(this.label8);
+            this.Controls.Add(this.label28);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.chboxConnectOnLaunch);
             this.Controls.Add(this.lbl_Port);
@@ -1273,9 +1283,9 @@ namespace Hitachi_IJP_Message_Manager
         private System.Windows.Forms.Label lblBatchLotNo;
         private System.Windows.Forms.Button btn_tbBatchLotNoConfirm;
         private System.Windows.Forms.TextBox tboxBatchLotNo;
-        private System.Windows.Forms.CheckBox chboxBatchLotNoAutoINC;
+        private System.Windows.Forms.CheckBox chboxBatchLotAuto;
         private System.Windows.Forms.Label lblBatchNextLotNo;
-        private System.Windows.Forms.CheckBox chboxBatchDateAUTO;
+        private System.Windows.Forms.CheckBox chboxBatchDateAuto;
         private System.Windows.Forms.Label lblBatchDate;
         private System.Windows.Forms.Label lblBatchNextDate;
         private System.Windows.Forms.Label label13;
@@ -1347,6 +1357,7 @@ namespace Hitachi_IJP_Message_Manager
         private System.Windows.Forms.Label label14;
         private System.Windows.Forms.Button btn_CurrentBatchClear;
         private System.Windows.Forms.Button btn_NextBatchClear;
+        private System.Windows.Forms.Label label28;
     }
 }
 
