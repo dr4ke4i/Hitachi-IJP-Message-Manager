@@ -20,7 +20,7 @@ namespace Hitachi_IJP_Message_Manager
         CBatch NextBatch;
         CPrinter Printer;
         CLog Log;
-        public bool HoldOn = true;
+        public bool HoldOn = true;              // aka Printer read-only mode
         public bool MaintenanceOn = false;
 
         public class CWindowForm
@@ -150,7 +150,7 @@ namespace Hitachi_IJP_Message_Manager
                     Printer.ReloadStatus();
                     Printer.ReloadString();
                     if (tmr.update_switch % 19 == 0) Printer.ReloadCalendarTime();
-                    if (tmr.update_switch % 49 == 0) Printer.SetCurrentTime(DateTime.Now);
+                    if (tmr.update_switch % 419 == 0) Printer.SetCurrentTime(DateTime.Now);
                     tmr.update_switch++;
                 }
                 else //!HoldOn
@@ -179,7 +179,10 @@ namespace Hitachi_IJP_Message_Manager
                             else if (dtpickBatchNextDate.Value.Date <= System.DateTime.Now.Date)
                                 NextBatch.Data.Info.StartDate = dtpickBatchNextDate.Value;
 
+                            NextBatch.StartBatch(Printer.Counter);
+                            cmboxNextBatchVolume.SelectedIndex = ClosestIndex(cmboxNextBatchVolume.Items, NextBatch.Delta.Volume);
                             SaveSettingsToFile(NextBatch, null, _form: true);
+                            UpdateComponents();
                         }
                     }
                     else
@@ -192,7 +195,7 @@ namespace Hitachi_IJP_Message_Manager
                             {
                                 Printer.ReloadString();
                             }
-                            else if (tmr.update_switch % 19 == 0)
+                            else if (tmr.update_switch % 13 == 0)
                             {
                                 Printer.ReloadCalendarTime();
                             }
@@ -213,7 +216,6 @@ namespace Hitachi_IJP_Message_Manager
             else  //(!Printer.IsOnline)
             {
                 bool result = Printer.SetOnline();
-                result &= Printer.ReloadOnlineStatus();
                 AddLineToLogs($"Принтер в режиме оффлайн. HoldOn={HoldOn}; Printer.IsOnline={Printer.IsOnline}. Переподключение... {(result ? "Успех" : "Ошибка")}",
                               _outputlistbox: true);
             }
@@ -301,7 +303,15 @@ namespace Hitachi_IJP_Message_Manager
         private void UpdateComponents()
         {
             btnStartMaintenance.Text = !MaintenanceOn ? "Начать тех.обслуживание" : "Завершить тех.обслуживание";
-            if (HoldOn || !Printer.Status.StatusReady) lblPrinterHoldOnActive.Visible = true; else lblPrinterHoldOnActive.Visible = false;
+            if (HoldOn || !Printer.Status.StatusReady)
+            {
+                lblPrinterHoldOnActive.Visible = true;
+                lblPrinterHoldOnActive.Text =
+                    (Printer.Status.StatusReady ? "Начните новую партию.\n" : "Устраните ошибки готовности принтера\n") +
+                    "Принтер сам партию не переведёт";
+            }
+            else
+                lblPrinterHoldOnActive.Visible = false;
 
             lblMarkedBags.Text = Convert.ToString(Printer.Counter - Batch.StartCounter - Batch.Delta.Maint - Batch.Delta.Broken);
             lblVolume.Text = Batch.Delta.Volume.ToString();
@@ -381,14 +391,19 @@ namespace Hitachi_IJP_Message_Manager
             lblPrinterNACKs.Text = Printer.Status.NACKs.ToString();
             lblLastCycleMillis.Text = tmr.cyclemillis.ToString();
 
-            if (!Printer.IsConnected || HoldOn || MaintenanceOn || !Printer.IsOnline)
+            if (!Printer.IsConnected || HoldOn || MaintenanceOn || !Printer.IsOnline || Printer.Status.CirculationInProgress)
             {
                 btnReWriteStringToPrinter.Enabled = false;
-                btnSetRemoteOperationStart.Enabled = false;
-                btnSetRemoteOperationStop.Enabled = false;
+                btnSetRemoteOperationStart.Enabled =
+                    (Printer.IsConnected && Printer.IsOnline && !MaintenanceOn && !Printer.Status.CirculationInProgress) ? true : false;
+                btnSetRemoteOperationStop.Enabled = (Printer.IsOnline && !MaintenanceOn && !Printer.Status.CirculationInProgress) ?
+                    true : false;
                 btnStartMaintenance.Enabled = (MaintenanceOn && Printer.IsConnected) ? true : false;
-                btnStartNewBatch.Enabled = false;
-                btnStopCalendarTimeResume.Enabled = false;
+                btnStartNewBatch.Enabled = (HoldOn && !MaintenanceOn && 
+                    ((Printer.IsOnline && Printer.Status.StatusReady && !Printer.Status.CirculationInProgress) ||
+                    (!Printer.IsOnline && !Printer.IsConnected))) ? true : false;
+                btnStopCalendarTimeResume.Enabled = (Printer.IsOnline && !MaintenanceOn && Printer.Status.StatusReady && !Printer.Status.CirculationInProgress) ?
+                    true : false;
                 btnStorePrintingMessageIntoMemory.Enabled = false;
             }
             else    // Printer.IsConnected && !HoldOn && !MaintenanceOn && Printer.IsOnline
@@ -481,7 +496,7 @@ namespace Hitachi_IJP_Message_Manager
                     {
                         $"Printer = {{ .IP={_printer_settings.Settings.IP}    .Port={_printer_settings.Settings.Port} ",
                         $"\t.GrpNo={_printer_settings.Settings.GrpNo}     .MsgNo={_printer_settings.Settings.MsgNo}    " +
-                        $"\t.MsgName=\"{_printer_settings.Settings.MsgName.Value}\"",
+                        $"\t.MsgName=\"{(_printer_settings.Settings.MsgName.Value != null ? _printer_settings.Settings.MsgName.Value : "")}\"",
                         $"\t.MsgNameRAW=\"" + BitConverter.ToString(_printer_settings.Settings.MsgName.RawData).Replace('-',' ') + @" }"
                     };
                 if (_outputlistbox)
@@ -497,7 +512,7 @@ namespace Hitachi_IJP_Message_Manager
                         $"\t.IsConnected={_printer.IsConnected}     .IsOnline={_printer.IsOnline}",
                         $"\t.ACKs={_printer.Status.ACKs}    .NACKs={_printer.Status.NACKs}     .Online={_printer.Status.Online}    .Reception={_printer.Status.Reception}",
                         $"\t.Status={_printer.Status.StatusRaw}      .Warning={_printer.Status.WarningRaw} ",
-                        $"\t.PrinterString=[{_printer.PCString.Length}]\"{_printer.PCString.Value}\"",
+                        $"\t.PrinterString=[{_printer.PCString.Length}]\"{(_printer.PCString.Value != null ? _printer.PCString.Value : "")}\"",
                         $"\t.PrinterStringRAW=\"" + BitConverter.ToString(_printer.PCString.RawData).Replace('-',' ') + $"\" }}"
                     };
                 if (_outputlistbox)
@@ -650,7 +665,7 @@ namespace Hitachi_IJP_Message_Manager
                                                         $"Внимание! Будет произведена попытка записи новой строки печати в принтер.\n\n" +
                                                         $"Текущая строка печати в принтере: \"{Printer.PCString.Value}\"\n" +
                                                         $"Новая строка печати в принтере: \"{GeneratePrintString(Batch)}\"\n" +
-                                                        $"Счётчик маркированных мешков будет обнулён.", "Вопрос",
+                                                        $"Счётчики мешков (маркированных, испорченных, ТО) будут обнулены.", "Вопрос",
                                                         MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2);
 
                 if (user_answer == DialogResult.Yes)
@@ -660,6 +675,10 @@ namespace Hitachi_IJP_Message_Manager
                     Batch.StartBatch(Printer.Counter);
                     PrinterSendNewBatch(Batch);
                     SaveSettingsToFile(Batch, null, _form: false);
+                    HoldOn = false;
+                    tmr.running = false;
+                    tmrUpdate.Enabled = true;
+                    UpdateComponents();
                 }
                 else    // Log User Cancelled
                 {
@@ -669,6 +688,11 @@ namespace Hitachi_IJP_Message_Manager
             else    // Log failure
             {
                 AddLineToLogs($"Принтер - не подключен, или не удалось обновить сетевой статус принтера", _outputlistbox: true);
+                if (Batch.IsOverthrown())
+                {
+                    BatchClearBagCounters(Batch);
+                }
+                    
             }
         }
 
@@ -1133,6 +1157,8 @@ namespace Hitachi_IJP_Message_Manager
                     {
                         _batch.Data.Info.Lot = new_value;
                         SaveSettingsToFile(_batch, null, _form: false);
+                        if (_batch == Batch && chboxBatchLotAuto.Checked)
+                            NextBatch.Data.Info.Lot = Batch.Data.Info.Lot + 1;
                         UpdateComponents();
                         // Log success
                         LogAddCheckpoint(_batch, null, null, null, _outputlistbox: true);
@@ -1487,19 +1513,24 @@ namespace Hitachi_IJP_Message_Manager
 
                         result &= Printer.SetRemoteOperation(SetOperationStart: true);
 
+                        int _counter = 200 * 1000 / tmrUpdate.Interval; // real time is 90 seconds for circulation to start, we take that ~2x times
                         result &= Printer.ReloadStatus();
-                        while (Printer.Status.CirculationInProgress)
+                        while (Printer.Status.CirculationInProgress && _counter > 0 && result == true)
                         {
                             System.Threading.Thread.Sleep(tmrUpdate.Interval);
                             result &= Printer.ReloadStatus();
                             UpdateComponents();
                             this.Update();
+                            _counter--;
                         }
+                        tmr.running = false;
+                        if (result && _counter > 0)
+                        {
+                            HoldOn = false;     // else HoldOn = true
+                        }
+                        tmrUpdate.Enabled = true;
                         // Log success/failure
                         AddLineToLogs($"Результат: {(result ? "успех" : "ошибка")}", _outputlistbox: true);
-                        tmr.running = false;
-                        HoldOn = false;
-                        tmrUpdate.Enabled = true;
                     }
                     else    // Log User Cancelled
                     {
@@ -1630,7 +1661,7 @@ namespace Hitachi_IJP_Message_Manager
             }
         }
 
-        private void ClearBatchBagCounters(CBatch _batch)
+        private void BatchClearBagCounters(CBatch _batch)
         {
             string _subst = (_batch == NextBatch) ? "следующей" : "текущей";
             Button _btn = (_batch == NextBatch) ? btn_NextBatchClear : btn_CurrentBatchClear;
@@ -1668,12 +1699,12 @@ namespace Hitachi_IJP_Message_Manager
 
         private void btn_CurrentBatchClear_Click(object sender, EventArgs e)
         {
-            ClearBatchBagCounters(Batch);
+            BatchClearBagCounters(Batch);
         }
 
         private void btn_NextBatchClear_Click(object sender, EventArgs e)
         {
-            ClearBatchBagCounters(NextBatch);
+            BatchClearBagCounters(NextBatch);
         }
 
         private void btn_SwapBatchCurrentNext_Click(object sender, EventArgs e)

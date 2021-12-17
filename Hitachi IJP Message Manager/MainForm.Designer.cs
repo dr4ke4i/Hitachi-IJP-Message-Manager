@@ -836,8 +836,8 @@ namespace Hitachi_IJP_Message_Manager
             this.lblPrinterHoldOnActive.Name = "lblPrinterHoldOnActive";
             this.lblPrinterHoldOnActive.Size = new System.Drawing.Size(329, 55);
             this.lblPrinterHoldOnActive.TabIndex = 33;
-            this.lblPrinterHoldOnActive.Text = "Устраните возможные ошибки подключения или готовности принтера, и/или начните нов" +
-    "ую партию. Принтер сам партию не переведёт.";
+            this.lblPrinterHoldOnActive.Text = "Устраните возможные ошибки готовности принтера, и/или начните новую партию. Принт" +
+    "ер сам партию не переведёт.";
             this.lblPrinterHoldOnActive.TextAlign = System.Drawing.ContentAlignment.TopRight;
             // 
             // label16
@@ -883,7 +883,7 @@ namespace Hitachi_IJP_Message_Manager
             this.btn_cmboxAddCurrentBatchVolumeItem.Name = "btn_cmboxAddCurrentBatchVolumeItem";
             this.btn_cmboxAddCurrentBatchVolumeItem.Size = new System.Drawing.Size(82, 27);
             this.btn_cmboxAddCurrentBatchVolumeItem.TabIndex = 7;
-            this.btn_cmboxAddCurrentBatchVolumeItem.Text = "Добавить";
+            this.btn_cmboxAddCurrentBatchVolumeItem.Text = "Записать";
             this.btn_cmboxAddCurrentBatchVolumeItem.UseVisualStyleBackColor = true;
             this.btn_cmboxAddCurrentBatchVolumeItem.Visible = false;
             this.btn_cmboxAddCurrentBatchVolumeItem.VisibleChanged += new System.EventHandler(this.btn_cmboxAddCurrentBatchVolumeItem_VisibleChanged);
@@ -1075,7 +1075,7 @@ namespace Hitachi_IJP_Message_Manager
             this.btn_cmboxAddNextBatchVolumeItem.Name = "btn_cmboxAddNextBatchVolumeItem";
             this.btn_cmboxAddNextBatchVolumeItem.Size = new System.Drawing.Size(82, 27);
             this.btn_cmboxAddNextBatchVolumeItem.TabIndex = 7;
-            this.btn_cmboxAddNextBatchVolumeItem.Text = "Добавить";
+            this.btn_cmboxAddNextBatchVolumeItem.Text = "Записать";
             this.btn_cmboxAddNextBatchVolumeItem.UseVisualStyleBackColor = true;
             this.btn_cmboxAddNextBatchVolumeItem.Visible = false;
             this.btn_cmboxAddNextBatchVolumeItem.VisibleChanged += new System.EventHandler(this.btn_cmboxAddNextBatchVolumeItem_VisibleChanged);

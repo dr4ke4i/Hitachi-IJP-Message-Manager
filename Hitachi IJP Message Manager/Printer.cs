@@ -463,6 +463,10 @@ namespace Hitachi_IJP_Message_Manager
                 if (result)
                     isonline = ((data[0] << 8) + data[1]) == 0x01 ? true : false;
             }
+            else
+            {
+                isonline = false;
+            }
             return result;
         }
 
